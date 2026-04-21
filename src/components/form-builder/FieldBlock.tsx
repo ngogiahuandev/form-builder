@@ -4,10 +4,11 @@ import { Extension } from "@tiptap/core";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import { EditorContent, useEditor } from "@tiptap/react";
-import { GripVertical, Plus, Trash2 } from "lucide-react";
+import { Copy, GripVertical, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -47,12 +48,15 @@ function InsertPalette({ index }: { index: number }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={(e) => e.stopPropagation()}
-          className="text-muted-foreground hover:bg-accent hover:text-foreground flex size-6 items-center justify-center rounded opacity-0 transition-opacity group-hover/block:opacity-100"
+          className="opacity-0 transition-opacity group-hover/block:opacity-100"
         >
-          <Plus className="size-3.5" />
-        </button>
+          <Plus />
+          <span className="sr-only">Add field below</span>
+        </Button>
       </PopoverTrigger>
       <PopoverContent side="bottom" align="start" className="w-64 p-2">
         <div className="flex flex-col gap-0.5">
@@ -124,6 +128,7 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
     updateField,
     addFieldAt,
     removeField,
+    duplicateField,
   } = useFormBuilderStore();
   const isSelected = selectedFieldId === field.id;
   const [showSlash, setShowSlash] = useState(false);
@@ -180,9 +185,9 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
           <span className="text-sm font-medium">{field.label}</span>
         </div>
         {field.helpText && (
-          <p className="mt-0.5 pl-5 text-xs">{field.helpText}</p>
+          <p className="mt-0.5 pl-0 text-xs">{field.helpText}</p>
         )}
-        <div className="pl-5">
+        <div className="pl-0">
           <FieldEditPreview field={field} />
         </div>
       </div>
@@ -202,24 +207,45 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
       {/* Left gutter — visible on hover */}
       <div className="absolute top-0 right-full flex items-center gap-0.5 pr-1">
         <InsertPalette index={index} />
-        <button
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            duplicateField(field.id);
+          }}
+          className="opacity-0 transition-opacity group-hover/block:opacity-100"
+        >
+          <Copy />
+          <span className="sr-only">Duplicate field</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={(e) => {
             e.stopPropagation();
             removeField(field.id);
           }}
-          className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex size-6 items-center justify-center rounded opacity-0 transition-opacity group-hover/block:opacity-100"
+          className="hover:bg-destructive/10 hover:text-destructive opacity-0 transition-opacity group-hover/block:opacity-100"
         >
-          <Trash2 className="size-3.5" />
-        </button>
-        <div
+          <Trash2 />
+          <span className="sr-only">Delete field</span>
+        </Button>
+        <Button
           ref={setActivatorNodeRef}
+          variant="ghost"
+          size="icon-sm"
           {...attributes}
           {...listeners}
-          onClick={(e) => e.stopPropagation()}
-          className="text-muted-foreground hover:bg-accent hover:text-foreground flex size-6 cursor-grab items-center justify-center rounded opacity-0 transition-opacity group-hover/block:opacity-100 active:cursor-grabbing"
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedFieldId(field.id);
+          }}
+          className="cursor-grab opacity-0 transition-opacity group-hover/block:opacity-100 active:cursor-grabbing"
         >
-          <GripVertical className="size-3.5" />
-        </div>
+          <GripVertical />
+          <span className="sr-only">Drag to reorder</span>
+        </Button>
       </div>
 
       {/* Label row */}
@@ -251,13 +277,13 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
 
       {/* Help text */}
       {field.helpText && (
-        <p className="text-muted-foreground mt-0.5 pl-5 text-xs">
+        <p className="text-muted-foreground mt-0.5 pl-0 text-xs">
           {field.helpText}
         </p>
       )}
 
       {/* Disabled field preview */}
-      <div className="pl-5">
+      <div className="pl-0">
         <FieldEditPreview field={field} />
       </div>
     </div>

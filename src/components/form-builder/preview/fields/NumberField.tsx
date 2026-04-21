@@ -19,8 +19,18 @@ export function NumberField({ field, control }: NumberFieldProps) {
         <PreviewField field={field} error={fieldState.error?.message}>
           <Input
             type="number"
-            value={typeof rhf.value === "number" ? rhf.value : ""}
-            onChange={(e) => rhf.onChange(e.target.valueAsNumber)}
+            value={
+              typeof rhf.value === "number" && !isNaN(rhf.value)
+                ? rhf.value
+                : ""
+            }
+            onChange={(e) =>
+              rhf.onChange(
+                isNaN(e.target.valueAsNumber)
+                  ? undefined
+                  : e.target.valueAsNumber,
+              )
+            }
             onBlur={rhf.onBlur}
             name={rhf.name}
             placeholder={field.placeholder}

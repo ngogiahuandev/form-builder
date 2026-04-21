@@ -10,6 +10,7 @@ const INITIAL_SCHEMA: FormSchema = {
   settings: {
     submitLabel: "Submit",
     successMessage: "Thank you for your response!",
+    submitAlignment: "left",
   },
 };
 
@@ -45,6 +46,7 @@ interface FormBuilderActions {
   addField: (type: FieldType) => void;
   addFieldAt: (type: FieldType, insertAfterIndex: number) => void;
   removeField: (id: string) => void;
+  duplicateField: (id: string) => void;
   updateField: (id: string, updates: Partial<FormField>) => void;
   reorderFields: (fromIndex: number, toIndex: number) => void;
   updateTitle: (title: string) => void;
@@ -85,6 +87,24 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
           };
         });
       },
+
+      duplicateField: (id) =>
+        set((state) => {
+          const index = state.schema.fields.findIndex((f) => f.id === id);
+          if (index === -1) return state;
+          const original = state.schema.fields[index]!;
+          const copy: FormField = {
+            ...original,
+            id: crypto.randomUUID(),
+            label: `${original.label} - Duplicated`,
+          };
+          const fields = [...state.schema.fields];
+          fields.splice(index + 1, 0, copy);
+          return {
+            schema: { ...state.schema, fields },
+            selectedFieldId: copy.id,
+          };
+        }),
 
       removeField: (id) =>
         set((state) => ({

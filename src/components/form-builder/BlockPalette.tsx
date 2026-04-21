@@ -26,15 +26,14 @@ export function BlockPalette() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant="ghost"
-          size="sm"
+          variant="secondary"
           className="text-muted-foreground hover:text-foreground gap-2"
         >
           <Plus className="h-4 w-4" />
           Add field
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-2">
+      <PopoverContent className="w-64 p-1" align="start">
         <div className="flex flex-col gap-0.5">
           {FIELD_TYPES.map(({ type, label, description }) => (
             <button

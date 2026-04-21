@@ -31,8 +31,8 @@ export function FormBuilder() {
         className="flex min-h-screen flex-col"
       >
         <header className="bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-10 border-b backdrop-blur">
-          {/* pl-15 = px-4 outer + pl-11 form indent, keeps tabs aligned with form title */}
-          <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3 pl-15">
+          {/* pl-0 = px-4 outer + pl-0 form indent, keeps tabs aligned with form title */}
+          <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3 pl-0">
             <TabsList>
               <TabsTrigger value="edit">Edit</TabsTrigger>
               <TabsTrigger value="preview">Preview</TabsTrigger>
@@ -45,7 +45,7 @@ export function FormBuilder() {
         </header>
 
         <TabsContent value="edit" className="mt-0 flex-1">
-          <main className="mx-auto max-w-3xl px-4 py-12">
+          <main className="mx-auto max-w-3xl py-12">
             <FormHeader />
             <Canvas />
           </main>
@@ -53,7 +53,7 @@ export function FormBuilder() {
         </TabsContent>
 
         <TabsContent value="preview" className="mt-0 flex-1">
-          <main className="mx-auto max-w-3xl px-4 py-12">
+          <main className="mx-auto max-w-3xl py-12">
             <FormPreview />
           </main>
         </TabsContent>

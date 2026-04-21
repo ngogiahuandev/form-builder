@@ -34,6 +34,7 @@ export interface FormField {
 export interface FormSettings {
   submitLabel: string;
   successMessage: string;
+  submitAlignment: "left" | "center" | "right";
 }
 
 export interface FormSchema {

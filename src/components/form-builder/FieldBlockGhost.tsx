@@ -22,11 +22,11 @@ export function FieldBlockGhost({ field }: FieldBlockGhostProps) {
         )}
       </div>
       {field.helpText && (
-        <p className="text-muted-foreground mt-0.5 pl-5 text-xs">
+        <p className="text-muted-foreground mt-0.5 pl-0 text-xs">
           {field.helpText}
         </p>
       )}
-      <div className="pl-5">
+      <div className="pl-0">
         <FieldEditPreview field={field} />
       </div>
     </div>

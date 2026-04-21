@@ -22,6 +22,7 @@ import { useFormBuilderStore } from "@/stores/form-builder-store";
 import { BlockPalette } from "@/components/form-builder/BlockPalette";
 import { FieldBlock } from "@/components/form-builder/FieldBlock";
 import { FieldBlockGhost } from "@/components/form-builder/FieldBlockGhost";
+import { SubmitButtonBlock } from "@/components/form-builder/SubmitButtonBlock";
 
 export function Canvas() {
   const { schema, reorderFields } = useFormBuilderStore();
@@ -53,7 +54,7 @@ export function Canvas() {
 
   if (schema.fields.length === 0) {
     return (
-      <div className="pl-8">
+      <div className="pl-0">
         <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed py-16 text-center">
           <p className="text-muted-foreground text-sm">
             No fields yet. Add your first one.
@@ -78,7 +79,7 @@ export function Canvas() {
           items={schema.fields.map((f) => f.id)}
           strategy={verticalListSortingStrategy}
         >
-          <div className="flex flex-col pl-8">
+          <div className="flex flex-col pl-0">
             {schema.fields.map((field, index) => (
               <FieldBlock key={field.id} field={field} index={index} />
             ))}
@@ -89,8 +90,11 @@ export function Canvas() {
           {activeField ? <FieldBlockGhost field={activeField} /> : null}
         </DragOverlay>
       </DndContext>
-      <div className="mt-4 pl-11">
+      <div className="mt-4 px-3">
         <BlockPalette />
+      </div>
+      <div className="mt-2">
+        <SubmitButtonBlock />
       </div>
     </div>
   );

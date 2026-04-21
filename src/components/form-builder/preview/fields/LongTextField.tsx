@@ -1,55 +1,9 @@
 "use client";
 
-import Placeholder from "@tiptap/extension-placeholder";
-import StarterKit from "@tiptap/starter-kit";
-import { EditorContent, useEditor } from "@tiptap/react";
-import { useEffect } from "react";
 import { Controller, type Control, type FieldValues } from "react-hook-form";
-import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
 import { PreviewField } from "@/components/form-builder/preview/PreviewField";
 import type { FormField } from "@/types";
-
-interface LongTextEditorProps {
-  placeholder?: string;
-  onChange: (value: string) => void;
-  hasError: boolean;
-}
-
-function LongTextEditor({
-  placeholder,
-  onChange,
-  hasError,
-}: LongTextEditorProps) {
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Placeholder.configure({
-        placeholder: placeholder ?? "Type your answer…",
-      }),
-    ],
-    immediatelyRender: false,
-    onUpdate: ({ editor }) => onChange(editor.getText()),
-  });
-
-  useEffect(() => {
-    return () => {
-      editor?.destroy();
-    };
-  }, [editor]);
-
-  return (
-    <EditorContent
-      editor={editor}
-      className={cn(
-        "bg-background min-h-[120px] rounded-md border px-3 py-2 text-sm transition-colors",
-        "focus-within:ring-ring focus-within:ring-1",
-        hasError && "border-destructive",
-        "[&_.tiptap]:min-h-[88px] [&_.tiptap]:outline-none",
-        "[&_.tiptap_p.is-editor-empty:first-child::before]:text-muted-foreground [&_.tiptap_p.is-editor-empty:first-child::before]:pointer-events-none [&_.tiptap_p.is-editor-empty:first-child::before]:float-left [&_.tiptap_p.is-editor-empty:first-child::before]:h-0 [&_.tiptap_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]",
-      )}
-    />
-  );
-}
 
 interface LongTextFieldProps {
   field: FormField;
@@ -63,10 +17,14 @@ export function LongTextField({ field, control }: LongTextFieldProps) {
       control={control}
       render={({ field: rhf, fieldState }) => (
         <PreviewField field={field} error={fieldState.error?.message}>
-          <LongTextEditor
-            placeholder={field.placeholder}
+          <Textarea
+            value={rhf.value ?? ""}
             onChange={rhf.onChange}
-            hasError={!!fieldState.error}
+            onBlur={rhf.onBlur}
+            name={rhf.name}
+            placeholder={field.placeholder ?? "Type your answer…"}
+            rows={3}
+            aria-invalid={!!fieldState.error}
           />
         </PreviewField>
       )}

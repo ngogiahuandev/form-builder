@@ -1,21 +1,22 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, type FieldValues } from "react-hook-form";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import {
-  generateDefaultValues,
-  generateZodSchema,
-} from "@/lib/generate-zod-schema";
-import { useFormBuilderStore } from "@/stores/form-builder-store";
-import type { FormField } from "@/types";
 import { DateField } from "@/components/form-builder/preview/fields/DateField";
 import { LongTextField } from "@/components/form-builder/preview/fields/LongTextField";
 import { MultipleChoiceField } from "@/components/form-builder/preview/fields/MultipleChoiceField";
 import { NumberField } from "@/components/form-builder/preview/fields/NumberField";
 import { ShortTextField } from "@/components/form-builder/preview/fields/ShortTextField";
 import { SingleChoiceField } from "@/components/form-builder/preview/fields/SingleChoiceField";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  generateDefaultValues,
+  generateZodSchema,
+} from "@/lib/generate-zod-schema";
+import { useFormBuilderStore } from "@/stores/form-builder-store";
+import type { FormField } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, type FieldValues } from "react-hook-form";
+import { toast } from "sonner";
 
 function renderField(
   field: FormField,
@@ -69,7 +70,7 @@ export function FormPreview() {
   return (
     <div>
       {/* Header — matches FormHeader layout exactly */}
-      <div className="mb-10 pl-11">
+      <div className="mb-10 pl-0">
         {schema.title && (
           <h1 className="text-3xl leading-tight font-bold">{schema.title}</h1>
         )}
@@ -79,12 +80,23 @@ export function FormPreview() {
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        {/* Field list — matches Canvas pl-8 + FieldBlock px-3 py-2 */}
-        <div className="flex flex-col pl-8">
+        {/* Field list — matches Canvas pl-0 + FieldBlock px-3 py-2 */}
+        <div className="flex flex-col pl-0">
           {schema.fields.map((field) => renderField(field, form.control))}
         </div>
-        <div className="mt-4 pl-11">
-          <Button type="submit" disabled={form.formState.isSubmitting}>
+        <div
+          className={cn(
+            "mt-4 flex px-3",
+            schema.settings.submitAlignment === "right" && "justify-end",
+          )}
+        >
+          <Button
+            type="submit"
+            disabled={form.formState.isSubmitting}
+            className={cn(
+              schema.settings.submitAlignment === "center" && "w-full",
+            )}
+          >
             {schema.settings.submitLabel}
           </Button>
         </div>

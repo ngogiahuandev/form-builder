@@ -24,12 +24,12 @@ export function PreviewField({ field, error, children }: PreviewFieldProps) {
         )}
       </div>
       {field.helpText && (
-        <p className="text-muted-foreground mt-0.5 pl-5 text-xs">
+        <p className="text-muted-foreground mt-0.5 pl-0 text-xs">
           {field.helpText}
         </p>
       )}
-      <div className="mt-2 pl-5">{children}</div>
-      {error && <p className="text-destructive mt-1 pl-5 text-sm">{error}</p>}
+      <div className="mt-2 pl-0">{children}</div>
+      {error && <p className="text-destructive mt-1 pl-0 text-sm">{error}</p>}
     </div>
   );
 }
