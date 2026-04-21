@@ -50,6 +50,18 @@ function pushHistory(
   return [...past, { schema, label, timestamp: Date.now() }].slice(-50);
 }
 
+// Module-level deferred edit state — avoids polluting store with UI-only timers
+let deferredSnapshot: FormSchema | null = null;
+let deferredTimer: ReturnType<typeof setTimeout> | null = null;
+
+function cancelDeferred() {
+  if (deferredTimer) {
+    clearTimeout(deferredTimer);
+    deferredTimer = null;
+  }
+  deferredSnapshot = null;
+}
+
 interface FormBuilderState {
   schema: FormSchema;
   past: HistoryEntry[];
@@ -64,7 +76,13 @@ interface FormBuilderActions {
   addFieldAt: (type: FieldType, insertAfterIndex: number) => void;
   removeField: (id: string) => void;
   duplicateField: (id: string) => void;
+  /** Discrete change (toggle, select, calendar) — pushes history immediately. */
   updateField: (id: string, updates: Partial<FormField>) => void;
+  /**
+   * Typing input (text, number) — applies update live, debounces the history
+   * push 800 ms after the last call. Only records history if the value changed.
+   */
+  updateFieldDeferred: (id: string, updates: Partial<FormField>) => void;
   updateFieldLabel: (id: string, label: string) => void;
   reorderFields: (fromIndex: number, toIndex: number) => void;
   updateTitle: (title: string) => void;
@@ -81,7 +99,7 @@ export type FormBuilderStore = FormBuilderState & FormBuilderActions;
 
 export const useFormBuilderStore = create<FormBuilderStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       schema: INITIAL_SCHEMA,
       past: [],
       future: [],
@@ -157,7 +175,11 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
 
       updateField: (id, updates) =>
         set((state) => {
-          const field = state.schema.fields.find((f) => f.id === id);
+          // If a deferred edit was in progress, absorb its snapshot so discrete
+          // actions don't create a duplicate history entry right after.
+          const snapshot = deferredSnapshot ?? state.schema;
+          cancelDeferred();
+          const field = snapshot.fields.find((f) => f.id === id);
           return {
             schema: {
               ...state.schema,
@@ -165,11 +187,49 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
                 f.id === id ? { ...f, ...updates } : f,
               ),
             },
-            past: pushHistory(state.past, state.schema, state.currentLabel),
+            past: pushHistory(state.past, snapshot, state.currentLabel),
             future: [],
             currentLabel: `Updated "${field?.label ?? "field"}"`,
           };
         }),
+
+      updateFieldDeferred: (id, updates) => {
+        // Snapshot the state before the first keystroke of this edit session
+        if (!deferredSnapshot) {
+          deferredSnapshot = get().schema;
+        }
+
+        // Apply the change immediately so the UI stays responsive
+        set((state) => ({
+          schema: {
+            ...state.schema,
+            fields: state.schema.fields.map((f) =>
+              f.id === id ? { ...f, ...updates } : f,
+            ),
+          },
+        }));
+
+        // Restart the debounce window
+        if (deferredTimer) clearTimeout(deferredTimer);
+        deferredTimer = setTimeout(() => {
+          deferredTimer = null;
+          const snapshot = deferredSnapshot;
+          deferredSnapshot = null;
+          if (!snapshot) return;
+
+          const current = get();
+          // Skip if nothing actually changed
+          if (JSON.stringify(snapshot) === JSON.stringify(current.schema))
+            return;
+
+          const field = current.schema.fields.find((f) => f.id === id);
+          set((s) => ({
+            past: pushHistory(s.past, snapshot, s.currentLabel),
+            future: [],
+            currentLabel: `Updated "${field?.label ?? "field"}"`,
+          }));
+        }, 800);
+      },
 
       // Label edits from TipTap — no history (TipTap has its own undo)
       updateFieldLabel: (id, label) =>
@@ -218,6 +278,7 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
       undo: () =>
         set((state) => {
           if (state.past.length === 0) return state;
+          cancelDeferred();
           const past = [...state.past];
           const previous = past.pop()!;
           return {
@@ -239,6 +300,7 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
       redo: () =>
         set((state) => {
           if (state.future.length === 0) return state;
+          cancelDeferred();
           const future = [...state.future];
           const next = future.shift()!;
           return {
@@ -264,6 +326,7 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
           const target = combined[combinedIndex];
           const currentIdx = state.past.length;
           if (!target || combinedIndex === currentIdx) return state;
+          cancelDeferred();
           return {
             schema: target.schema,
             currentLabel: target.label,

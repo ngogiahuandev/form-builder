@@ -206,6 +206,18 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
     >
       {/* Left gutter — visible on hover */}
       <div className="absolute top-0 right-full flex items-center gap-0.5 pr-1">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            removeField(field.id);
+          }}
+          className="hover:bg-destructive/10 hover:text-destructive opacity-0 transition-opacity group-hover/block:opacity-100"
+        >
+          <Trash2 />
+          <span className="sr-only">Delete field</span>
+        </Button>
         <InsertPalette index={index} />
         <Button
           variant="ghost"
@@ -219,18 +231,7 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
           <Copy />
           <span className="sr-only">Duplicate field</span>
         </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            removeField(field.id);
-          }}
-          className="hover:bg-destructive/10 hover:text-destructive opacity-0 transition-opacity group-hover/block:opacity-100"
-        >
-          <Trash2 />
-          <span className="sr-only">Delete field</span>
-        </Button>
+
         <Button
           ref={setActivatorNodeRef}
           variant="ghost"

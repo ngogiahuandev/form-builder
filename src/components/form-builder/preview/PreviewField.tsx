@@ -24,10 +24,7 @@ export function PreviewField({
   children,
 }: PreviewFieldProps) {
   return (
-    <Field
-      className="px-3 py-2"
-      data-invalid={error ? "true" : undefined}
-    >
+    <Field className="px-3 py-2" data-invalid={error ? "true" : undefined}>
       <div className="flex items-center gap-1.5">
         <FieldTypeIcon
           type={field.type}
@@ -44,9 +41,7 @@ export function PreviewField({
           <span className="text-destructive shrink-0 text-sm">*</span>
         )}
       </div>
-      {field.helpText && (
-        <FieldDescription>{field.helpText}</FieldDescription>
-      )}
+      {field.helpText && <FieldDescription>{field.helpText}</FieldDescription>}
       <div className="mt-2">{children}</div>
       <FieldError>{error}</FieldError>
     </Field>

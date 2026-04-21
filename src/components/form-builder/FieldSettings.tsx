@@ -37,6 +37,7 @@ interface OptionsEditorProps {
 
 function OptionsEditor({ field }: OptionsEditorProps) {
   const updateField = useFormBuilderStore((s) => s.updateField);
+  const updateFieldDeferred = useFormBuilderStore((s) => s.updateFieldDeferred);
   const options = field.options ?? [];
   const isMultiple = field.type === "multiple_choice";
 
@@ -71,7 +72,7 @@ function OptionsEditor({ field }: OptionsEditorProps) {
   };
 
   const handleLabelChange = (optionId: string, label: string) => {
-    updateField(field.id, {
+    updateFieldDeferred(field.id, {
       options: options.map((o) =>
         o.id === optionId
           ? {
@@ -158,6 +159,7 @@ export function FieldSettings() {
     selectedFieldId,
     setSelectedFieldId,
     updateField,
+    updateFieldDeferred,
     removeField,
   } = useFormBuilderStore();
   const field = schema.fields.find((f) => f.id === selectedFieldId);
@@ -197,7 +199,7 @@ export function FieldSettings() {
                     id="field-label"
                     value={field.label}
                     onChange={(e) =>
-                      updateField(field.id, { label: e.target.value })
+                      updateFieldDeferred(field.id, { label: e.target.value })
                     }
                     placeholder="e.g. What is your name?"
                   />
@@ -211,7 +213,9 @@ export function FieldSettings() {
                     id="field-placeholder"
                     value={field.placeholder ?? ""}
                     onChange={(e) =>
-                      updateField(field.id, { placeholder: e.target.value })
+                      updateFieldDeferred(field.id, {
+                        placeholder: e.target.value,
+                      })
                     }
                     placeholder="e.g. Enter your name…"
                   />
@@ -229,7 +233,7 @@ export function FieldSettings() {
                       type={field.type === "number" ? "number" : "text"}
                       value={field.defaultValue ?? ""}
                       onChange={(e) =>
-                        updateField(field.id, {
+                        updateFieldDeferred(field.id, {
                           defaultValue: e.target.value || undefined,
                         })
                       }
@@ -331,7 +335,9 @@ export function FieldSettings() {
                     id="field-help"
                     value={field.helpText ?? ""}
                     onChange={(e) =>
-                      updateField(field.id, { helpText: e.target.value })
+                      updateFieldDeferred(field.id, {
+                        helpText: e.target.value,
+                      })
                     }
                     placeholder="A short description below the label"
                   />
@@ -388,7 +394,7 @@ export function FieldSettings() {
                         min={0}
                         value={field.validation?.minLength ?? ""}
                         onChange={(e) =>
-                          updateField(field.id, {
+                          updateFieldDeferred(field.id, {
                             validation: {
                               ...field.validation,
                               minLength:
@@ -410,7 +416,7 @@ export function FieldSettings() {
                         min={0}
                         value={field.validation?.maxLength ?? ""}
                         onChange={(e) =>
-                          updateField(field.id, {
+                          updateFieldDeferred(field.id, {
                             validation: {
                               ...field.validation,
                               maxLength:
@@ -434,7 +440,7 @@ export function FieldSettings() {
                         type="number"
                         value={field.validation?.min ?? ""}
                         onChange={(e) =>
-                          updateField(field.id, {
+                          updateFieldDeferred(field.id, {
                             validation: {
                               ...field.validation,
                               min:
@@ -453,7 +459,7 @@ export function FieldSettings() {
                         type="number"
                         value={field.validation?.max ?? ""}
                         onChange={(e) =>
-                          updateField(field.id, {
+                          updateFieldDeferred(field.id, {
                             validation: {
                               ...field.validation,
                               max:

@@ -16,7 +16,11 @@ export function NumberField({ field, control }: NumberFieldProps) {
       name={field.id}
       control={control}
       render={({ field: rhf, fieldState }) => (
-        <PreviewField field={field} error={fieldState.error?.message} htmlFor={field.id}>
+        <PreviewField
+          field={field}
+          error={fieldState.error?.message}
+          htmlFor={field.id}
+        >
           <Input
             id={field.id}
             type="number"
