@@ -194,6 +194,55 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
     );
   }
 
+  // Divider — simplified block without label editor
+  if (field.type === "divider") {
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        onClick={() => setSelectedFieldId(field.id)}
+        className={cn(
+          "group/block hover:bg-accent/40 relative cursor-pointer rounded-md px-3 py-2 transition-colors",
+          isSelected && "bg-accent/40 ring-primary/20 ring-1",
+        )}
+      >
+        {/* Left gutter — visible on hover */}
+        <div className="absolute top-0 right-full flex items-center gap-0.5 pr-1">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              removeField(field.id);
+            }}
+            className="hover:bg-destructive/10 hover:text-destructive opacity-0 transition-opacity group-hover/block:opacity-100"
+          >
+            <Trash2 />
+            <span className="sr-only">Delete field</span>
+          </Button>
+          <InsertPalette index={index} />
+          <Button
+            ref={setActivatorNodeRef}
+            variant="ghost"
+            size="icon-sm"
+            {...attributes}
+            {...listeners}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedFieldId(field.id);
+            }}
+            className="cursor-grab opacity-0 transition-opacity group-hover/block:opacity-100 active:cursor-grabbing"
+          >
+            <GripVertical />
+            <span className="sr-only">Drag to reorder</span>
+          </Button>
+        </div>
+
+        <FieldEditPreview field={field} />
+      </div>
+    );
+  }
+
   return (
     <div
       ref={setNodeRef}

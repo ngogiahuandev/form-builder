@@ -4,7 +4,10 @@ export type FieldType =
   | "single_choice"
   | "multiple_choice"
   | "number"
-  | "date";
+  | "date"
+  | "select"
+  | "linear_scale"
+  | "divider";
 
 export interface FormFieldOption {
   id: string;
@@ -19,6 +22,9 @@ export interface FormFieldValidation {
   maxLength?: number;
   minDate?: string;
   maxDate?: string;
+  scaleFrom?: number;
+  scaleTo?: number;
+  scaleJump?: number;
 }
 
 export interface FormField {

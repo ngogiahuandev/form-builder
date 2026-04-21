@@ -67,6 +67,26 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
         ? base.min(1, "Select at least one option")
         : base.optional();
     }
+    case "select": {
+      const values = (field.options ?? []).map((o) => o.value);
+      if (values.length < 1) {
+        return field.required
+          ? z.string().min(1, "Select an option")
+          : z.string().optional();
+      }
+      const enumSchema = z.enum(values as [string, ...string[]]);
+      return field.required ? enumSchema : enumSchema.optional();
+    }
+    case "linear_scale": {
+      const from = field.validation?.scaleFrom ?? 1;
+      const to = field.validation?.scaleTo ?? 5;
+      let base = z.coerce.number().min(from).max(to);
+      return field.required
+        ? base.refine((v) => v !== undefined, "This field is required")
+        : base.optional();
+    }
+    case "divider":
+      return z.never();
   }
 }
 
@@ -75,8 +95,10 @@ export function generateZodSchema(
 ): z.ZodObject<Record<string, z.ZodTypeAny>> {
   const shape: Record<string, z.ZodTypeAny> = {};
   for (const field of fields) {
+    if (field.type === "divider") continue;
     shape[field.id] = buildFieldSchema(field);
   }
+
   return z.object(shape);
 }
 
@@ -85,6 +107,7 @@ export function generateDefaultValues(
 ): Record<string, unknown> {
   const defaults: Record<string, unknown> = {};
   for (const field of fields) {
+    if (field.type === "divider") continue;
     switch (field.type) {
       case "short_text":
       case "long_text":
@@ -97,7 +120,14 @@ export function generateDefaultValues(
             : undefined;
         break;
       case "single_choice":
+      case "select":
         defaults[field.id] = field.defaultValue;
+        break;
+      case "linear_scale":
+        defaults[field.id] =
+          field.defaultValue !== undefined
+            ? Number(field.defaultValue)
+            : undefined;
         break;
       case "multiple_choice":
         defaults[field.id] = field.defaultValues ?? [];

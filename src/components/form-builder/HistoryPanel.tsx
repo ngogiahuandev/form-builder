@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { Clock, CornerDownLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function HistoryPanel() {
   const { past, future, currentLabel, schema, jumpToHistory } =
@@ -36,7 +37,7 @@ export function HistoryPanel() {
     .reverse();
 
   return (
-    <div className="flex flex-col py-4">
+    <ScrollArea className="flex max-h-96 w-full flex-col overflow-y-auto py-4">
       {reversed.map(({ label, timestamp, originalIdx }) => {
         const isCurrent = originalIdx === currentIndex;
         const isFuture = originalIdx > currentIndex;
@@ -48,7 +49,7 @@ export function HistoryPanel() {
             disabled={isCurrent}
             onClick={() => jumpToHistory(originalIdx)}
             className={cn(
-              "group flex items-start gap-3 px-4 py-2.5 text-left text-sm transition-colors",
+              "group flex w-full items-start gap-3 px-4 py-2.5 text-left text-sm transition-colors",
               isCurrent
                 ? "bg-accent cursor-default"
                 : "hover:bg-accent/60 cursor-pointer",
@@ -96,6 +97,6 @@ export function HistoryPanel() {
           </button>
         );
       })}
-    </div>
+    </ScrollArea>
   );
 }

@@ -29,4 +29,11 @@ export const FIELD_TYPES: FieldTypeMeta[] = [
   },
   { type: "number", label: "Number", description: "Age, quantity, score" },
   { type: "date", label: "Date", description: "Birthdate, deadline" },
+  { type: "select", label: "Select", description: "Dropdown list" },
+  {
+    type: "linear_scale",
+    label: "Linear Scale",
+    description: "Rating from a range",
+  },
+  { type: "divider", label: "Divider", description: "Visual separator" },
 ];

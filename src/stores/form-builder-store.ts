@@ -16,7 +16,7 @@ const INITIAL_SCHEMA: FormSchema = {
   settings: {
     submitLabel: "Submit",
     successMessage: "Thank you for your response!",
-    submitAlignment: "left",
+    submitAlignment: "center",
   },
 };
 
@@ -27,6 +27,9 @@ const DEFAULT_LABELS = {
   multiple_choice: "Multiple Choice",
   number: "Number",
   date: "Date",
+  select: "Select",
+  linear_scale: "Linear Scale",
+  divider: "Divider",
 } as const satisfies Record<FieldType, string>;
 
 function buildDefaultField(type: FieldType): FormField {
@@ -36,8 +39,18 @@ function buildDefaultField(type: FieldType): FormField {
     label: DEFAULT_LABELS[type],
     required: false,
   };
-  if (type === "single_choice" || type === "multiple_choice") {
-    return { ...base, options: [], variant: "radio" };
+  if (
+    type === "single_choice" ||
+    type === "multiple_choice" ||
+    type === "select"
+  ) {
+    return { ...base, options: [] };
+  }
+  if (type === "linear_scale") {
+    return {
+      ...base,
+      validation: { scaleFrom: 1, scaleTo: 5, scaleJump: 1 },
+    };
   }
   return base;
 }

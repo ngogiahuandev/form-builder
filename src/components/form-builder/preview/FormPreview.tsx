@@ -1,12 +1,15 @@
 "use client";
 
 import { DateField } from "@/components/form-builder/preview/fields/DateField";
+import { LinearScaleField } from "@/components/form-builder/preview/fields/LinearScaleField";
 import { LongTextField } from "@/components/form-builder/preview/fields/LongTextField";
 import { MultipleChoiceField } from "@/components/form-builder/preview/fields/MultipleChoiceField";
 import { NumberField } from "@/components/form-builder/preview/fields/NumberField";
+import { SelectField } from "@/components/form-builder/preview/fields/SelectField";
 import { ShortTextField } from "@/components/form-builder/preview/fields/ShortTextField";
 import { SingleChoiceField } from "@/components/form-builder/preview/fields/SingleChoiceField";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import {
   generateDefaultValues,
@@ -39,6 +42,14 @@ function renderField(
       return <NumberField key={field.id} field={field} control={control} />;
     case "date":
       return <DateField key={field.id} field={field} control={control} />;
+    case "select":
+      return <SelectField key={field.id} field={field} control={control} />;
+    case "linear_scale":
+      return (
+        <LinearScaleField key={field.id} field={field} control={control} />
+      );
+    case "divider":
+      return <Separator key={field.id} className="my-4" />;
   }
 }
 

@@ -9,6 +9,14 @@ interface FieldBlockGhostProps {
 }
 
 export function FieldBlockGhost({ field }: FieldBlockGhostProps) {
+  if (field.type === "divider") {
+    return (
+      <div className="bg-background rounded-md px-3 py-2 opacity-50">
+        <FieldEditPreview field={field} />
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background rounded-md px-3 py-2 opacity-50">
       <div className="flex items-center gap-1.5">

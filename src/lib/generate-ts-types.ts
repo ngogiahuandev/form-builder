@@ -9,7 +9,8 @@ function fieldTypeString(field: FormField): string {
       return "number";
     case "date":
       return "Date";
-    case "single_choice": {
+    case "single_choice":
+    case "select": {
       const values = (field.options ?? [])
         .map((o) => `'${o.value}'`)
         .join(" | ");
@@ -21,13 +22,18 @@ function fieldTypeString(field: FormField): string {
         .join(" | ");
       return values ? `Array<${values}>` : "string[]";
     }
+    case "linear_scale":
+      return "number";
+    case "divider":
+      return "";
   }
 }
 
 export function generateTsTypes(fields: FormField[]): string {
-  if (fields.length === 0) return "export interface FormValues {}";
+  const dataFields = fields.filter((f) => f.type !== "divider");
+  if (dataFields.length === 0) return "export interface FormValues {}";
 
-  const lines = fields.map((field) => {
+  const lines = dataFields.map((field) => {
     const type = fieldTypeString(field);
     const optional = field.required ? "" : "?";
     const comment = field.label ? ` // ${field.label}` : "";

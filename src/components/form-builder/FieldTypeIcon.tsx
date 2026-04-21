@@ -4,8 +4,11 @@ import {
   AlignLeft,
   Calendar,
   CheckSquare,
+  ChevronsUpDown,
   CircleDot,
   Hash,
+  Minus,
+  SlidersHorizontal,
   Type,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -19,6 +22,9 @@ const ICON_MAP = {
   multiple_choice: CheckSquare,
   number: Hash,
   date: Calendar,
+  select: ChevronsUpDown,
+  linear_scale: SlidersHorizontal,
+  divider: Minus,
 } as const satisfies Record<FieldType, ComponentType<{ className?: string }>>;
 
 interface FieldTypeIconProps {

@@ -193,6 +193,17 @@ export function FieldSettings() {
             </SheetHeader>
             <div className="px-4">
               <FieldGroup>
+                {field.type === "divider" ? (
+                  <Button
+                    variant="destructive"
+                    className="w-full"
+                    onClick={handleDelete}
+                  >
+                    <Trash2 data-icon="inline-start" />
+                    Delete divider
+                  </Button>
+                ) : (
+                <>
                 <Field>
                   <FieldLabel htmlFor="field-label">Question</FieldLabel>
                   <Input
@@ -377,8 +388,71 @@ export function FieldSettings() {
                 )}
 
                 {(field.type === "single_choice" ||
-                  field.type === "multiple_choice") && (
+                  field.type === "multiple_choice" ||
+                  field.type === "select") && (
                   <OptionsEditor field={field} />
+                )}
+
+                {field.type === "linear_scale" && (
+                  <div className="grid grid-cols-3 gap-3">
+                    <Field>
+                      <FieldLabel htmlFor="scale-from">From</FieldLabel>
+                      <Input
+                        id="scale-from"
+                        type="number"
+                        value={field.validation?.scaleFrom ?? ""}
+                        onChange={(e) =>
+                          updateFieldDeferred(field.id, {
+                            validation: {
+                              ...field.validation,
+                              scaleFrom:
+                                e.target.value === ""
+                                  ? undefined
+                                  : Number(e.target.value),
+                            },
+                          })
+                        }
+                      />
+                    </Field>
+                    <Field>
+                      <FieldLabel htmlFor="scale-to">To</FieldLabel>
+                      <Input
+                        id="scale-to"
+                        type="number"
+                        value={field.validation?.scaleTo ?? ""}
+                        onChange={(e) =>
+                          updateFieldDeferred(field.id, {
+                            validation: {
+                              ...field.validation,
+                              scaleTo:
+                                e.target.value === ""
+                                  ? undefined
+                                  : Number(e.target.value),
+                            },
+                          })
+                        }
+                      />
+                    </Field>
+                    <Field>
+                      <FieldLabel htmlFor="scale-jump">Jump</FieldLabel>
+                      <Input
+                        id="scale-jump"
+                        type="number"
+                        value={field.validation?.scaleJump ?? ""}
+                        onChange={(e) =>
+                          updateFieldDeferred(field.id, {
+                            validation: {
+                              ...field.validation,
+                              scaleJump:
+                                e.target.value === ""
+                                  ? undefined
+                                  : Number(e.target.value),
+                            },
+                          })
+                        }
+                      />
+                    </Field>
+                  </div>
                 )}
 
                 {(field.type === "short_text" ||
@@ -482,6 +556,8 @@ export function FieldSettings() {
                   <Trash2 data-icon="inline-start" />
                   Delete field
                 </Button>
+                </>
+                )}
               </FieldGroup>
             </div>
           </>

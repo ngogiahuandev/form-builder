@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import type { FormField } from "@/types";
 
@@ -136,5 +137,50 @@ export function FieldEditPreview({ field }: FieldEditPreviewProps) {
         </div>
       );
     }
+
+    case "select": {
+      const options = field.options ?? [];
+      if (options.length === 0) {
+        return (
+          <p className="text-muted-foreground mt-2 text-xs italic">
+            No options yet — add them in the settings panel
+          </p>
+        );
+      }
+      return (
+        <Select disabled>
+          <SelectTrigger className="mt-2">
+            <SelectValue placeholder={placeholder ?? "Select an option"} />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((opt) => (
+              <SelectItem key={opt.id} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    case "linear_scale": {
+      const from = field.validation?.scaleFrom ?? 1;
+      const to = field.validation?.scaleTo ?? 5;
+      const jump = field.validation?.scaleJump ?? 1;
+      const steps: number[] = [];
+      for (let i = from; i <= to; i += jump) steps.push(i);
+      return (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {steps.map((n) => (
+            <Button key={n} variant="outline" size="icon" disabled>
+              {n}
+            </Button>
+          ))}
+        </div>
+      );
+    }
+
+    case "divider":
+      return <Separator className="my-4" />;
   }
 }
