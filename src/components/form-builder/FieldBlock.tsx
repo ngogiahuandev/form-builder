@@ -125,7 +125,7 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
   const {
     selectedFieldId,
     setSelectedFieldId,
-    updateField,
+    updateFieldLabel,
     addFieldAt,
     removeField,
     duplicateField,
@@ -162,7 +162,7 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
         setShowSlash(true);
       } else {
         setShowSlash(false);
-        updateField(field.id, { label: text });
+        updateFieldLabel(field.id, text);
       }
     },
   });

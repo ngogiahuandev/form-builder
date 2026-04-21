@@ -5,10 +5,40 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
   switch (field.type) {
     case "short_text":
     case "long_text": {
-      const base = z.string();
-      return field.required
-        ? base.min(1, "This field is required")
-        : base.optional();
+      let str = z.string();
+      const { minLength, maxLength, minWords, maxWords } =
+        field.validation ?? {};
+
+      if (field.required && !minLength)
+        str = str.min(1, "This field is required");
+      if (minLength)
+        str = str.min(
+          minLength,
+          `At least ${minLength} character${minLength === 1 ? "" : "s"}`,
+        );
+      if (maxLength)
+        str = str.max(
+          maxLength,
+          `At most ${maxLength} character${maxLength === 1 ? "" : "s"}`,
+        );
+
+      if (!minWords && !maxWords) return field.required ? str : str.optional();
+
+      const withWords = str.superRefine((val, ctx) => {
+        if (!field.required && val.trim() === "") return;
+        const count = val.trim() === "" ? 0 : val.trim().split(/\s+/).length;
+        if (minWords !== undefined && count < minWords)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `At least ${minWords} word${minWords === 1 ? "" : "s"}`,
+          });
+        if (maxWords !== undefined && count > maxWords)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `At most ${maxWords} word${maxWords === 1 ? "" : "s"}`,
+          });
+      });
+      return field.required ? withWords : withWords.optional();
     }
     case "number": {
       let base = z.coerce.number();

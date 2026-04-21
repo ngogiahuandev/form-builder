@@ -70,7 +70,7 @@ export function FormPreview() {
   return (
     <div>
       {/* Header — matches FormHeader layout exactly */}
-      <div className="mb-10 pl-0">
+      <div className="mb-10 px-3">
         {schema.title && (
           <h1 className="text-3xl leading-tight font-bold">{schema.title}</h1>
         )}
@@ -80,8 +80,8 @@ export function FormPreview() {
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        {/* Field list — matches Canvas pl-0 + FieldBlock px-3 py-2 */}
-        <div className="flex flex-col pl-0">
+        {/* Field list — matches Canvas  + FieldBlock px-3 py-2 */}
+        <div className="flex flex-col">
           {schema.fields.map((field) => renderField(field, form.control))}
         </div>
         <div

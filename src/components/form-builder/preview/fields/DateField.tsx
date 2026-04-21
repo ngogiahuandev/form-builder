@@ -44,7 +44,7 @@ export function DateField({ field, control }: DateFieldProps) {
                     : (field.placeholder ?? "Pick a date")}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={dateValue}

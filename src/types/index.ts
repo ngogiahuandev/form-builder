@@ -15,6 +15,10 @@ export interface FormFieldOption {
 export interface FormFieldValidation {
   min?: number;
   max?: number;
+  minLength?: number;
+  maxLength?: number;
+  minWords?: number;
+  maxWords?: number;
 }
 
 export interface FormField {
@@ -35,6 +39,12 @@ export interface FormSettings {
   submitLabel: string;
   successMessage: string;
   submitAlignment: "left" | "center" | "right";
+}
+
+export interface HistoryEntry {
+  schema: FormSchema;
+  label: string;
+  timestamp: number;
 }
 
 export interface FormSchema {

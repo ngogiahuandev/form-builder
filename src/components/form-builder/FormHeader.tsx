@@ -41,8 +41,7 @@ export function FormHeader() {
   });
 
   return (
-    // pl-0 = pl-0 (canvas gutter) + pl-3 (block padding) — aligns title with field content
-    <div className="mb-10 pl-0">
+    <div className="mb-10 px-3">
       <EditorContent
         editor={titleEditor}
         className="[&_.tiptap_p.is-editor-empty:first-child::before]:text-muted-foreground [&_.tiptap]:text-3xl [&_.tiptap]:leading-tight [&_.tiptap]:font-bold [&_.tiptap]:outline-none [&_.tiptap_p.is-editor-empty:first-child::before]:pointer-events-none [&_.tiptap_p.is-editor-empty:first-child::before]:float-left [&_.tiptap_p.is-editor-empty:first-child::before]:h-0 [&_.tiptap_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.tiptap.ProseMirror-focused]:outline-none"

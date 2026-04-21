@@ -54,7 +54,7 @@ export function Canvas() {
 
   if (schema.fields.length === 0) {
     return (
-      <div className="pl-0">
+      <div className="px-3">
         <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed py-16 text-center">
           <p className="text-muted-foreground text-sm">
             No fields yet. Add your first one.
