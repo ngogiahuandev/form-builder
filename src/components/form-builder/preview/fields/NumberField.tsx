@@ -16,8 +16,9 @@ export function NumberField({ field, control }: NumberFieldProps) {
       name={field.id}
       control={control}
       render={({ field: rhf, fieldState }) => (
-        <PreviewField field={field} error={fieldState.error?.message}>
+        <PreviewField field={field} error={fieldState.error?.message} htmlFor={field.id}>
           <Input
+            id={field.id}
             type="number"
             value={
               typeof rhf.value === "number" && !isNaN(rhf.value)

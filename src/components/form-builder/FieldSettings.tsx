@@ -239,50 +239,90 @@ export function FieldSettings() {
                 )}
 
                 {field.type === "date" && (
-                  <Field>
-                    <FieldLabel>Default date</FieldLabel>
-                    <div className="flex gap-2">
-                      <Popover>
-                        <PopoverTrigger asChild>
+                  <>
+                    <Field>
+                      <FieldLabel>Default date</FieldLabel>
+                      <div className="flex gap-2">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "flex-1 justify-start text-left font-normal",
+                                !defaultDate && "text-muted-foreground",
+                              )}
+                            >
+                              <CalendarIcon data-icon="inline-start" />
+                              {defaultDate
+                                ? format(defaultDate, "PPP")
+                                : "Pick a default date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={defaultDate}
+                              onSelect={(date) =>
+                                updateField(field.id, {
+                                  defaultValue: date?.toISOString(),
+                                })
+                              }
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        {defaultDate && (
                           <Button
-                            variant="outline"
-                            className={cn(
-                              "flex-1 justify-start text-left font-normal",
-                              !defaultDate && "text-muted-foreground",
-                            )}
-                          >
-                            <CalendarIcon data-icon="inline-start" />
-                            {defaultDate
-                              ? format(defaultDate, "PPP")
-                              : "Pick a default date"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={defaultDate}
-                            onSelect={(date) =>
-                              updateField(field.id, {
-                                defaultValue: date?.toISOString(),
-                              })
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              updateField(field.id, { defaultValue: undefined })
                             }
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      {defaultDate && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() =>
-                            updateField(field.id, { defaultValue: undefined })
+                          >
+                            <Trash2 />
+                            <span className="sr-only">Clear date</span>
+                          </Button>
+                        )}
+                      </div>
+                    </Field>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field>
+                        <FieldLabel htmlFor="field-min-date">
+                          Min date
+                        </FieldLabel>
+                        <Input
+                          id="field-min-date"
+                          type="date"
+                          value={field.validation?.minDate ?? ""}
+                          onChange={(e) =>
+                            updateField(field.id, {
+                              validation: {
+                                ...field.validation,
+                                minDate: e.target.value || undefined,
+                              },
+                            })
                           }
-                        >
-                          <Trash2 />
-                          <span className="sr-only">Clear date</span>
-                        </Button>
-                      )}
+                        />
+                      </Field>
+                      <Field>
+                        <FieldLabel htmlFor="field-max-date">
+                          Max date
+                        </FieldLabel>
+                        <Input
+                          id="field-max-date"
+                          type="date"
+                          value={field.validation?.maxDate ?? ""}
+                          onChange={(e) =>
+                            updateField(field.id, {
+                              validation: {
+                                ...field.validation,
+                                maxDate: e.target.value || undefined,
+                              },
+                            })
+                          }
+                        />
+                      </Field>
                     </div>
-                  </Field>
+                  </>
                 )}
 
                 <Field>
@@ -337,100 +377,52 @@ export function FieldSettings() {
 
                 {(field.type === "short_text" ||
                   field.type === "long_text") && (
-                  <>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Field>
-                        <FieldLabel htmlFor="field-min-chars">
-                          Min chars
-                        </FieldLabel>
-                        <Input
-                          id="field-min-chars"
-                          type="number"
-                          min={0}
-                          value={field.validation?.minLength ?? ""}
-                          onChange={(e) =>
-                            updateField(field.id, {
-                              validation: {
-                                ...field.validation,
-                                minLength:
-                                  e.target.value === ""
-                                    ? undefined
-                                    : Number(e.target.value),
-                              },
-                            })
-                          }
-                        />
-                      </Field>
-                      <Field>
-                        <FieldLabel htmlFor="field-max-chars">
-                          Max chars
-                        </FieldLabel>
-                        <Input
-                          id="field-max-chars"
-                          type="number"
-                          min={0}
-                          value={field.validation?.maxLength ?? ""}
-                          onChange={(e) =>
-                            updateField(field.id, {
-                              validation: {
-                                ...field.validation,
-                                maxLength:
-                                  e.target.value === ""
-                                    ? undefined
-                                    : Number(e.target.value),
-                              },
-                            })
-                          }
-                        />
-                      </Field>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Field>
-                        <FieldLabel htmlFor="field-min-words">
-                          Min words
-                        </FieldLabel>
-                        <Input
-                          id="field-min-words"
-                          type="number"
-                          min={0}
-                          value={field.validation?.minWords ?? ""}
-                          onChange={(e) =>
-                            updateField(field.id, {
-                              validation: {
-                                ...field.validation,
-                                minWords:
-                                  e.target.value === ""
-                                    ? undefined
-                                    : Number(e.target.value),
-                              },
-                            })
-                          }
-                        />
-                      </Field>
-                      <Field>
-                        <FieldLabel htmlFor="field-max-words">
-                          Max words
-                        </FieldLabel>
-                        <Input
-                          id="field-max-words"
-                          type="number"
-                          min={0}
-                          value={field.validation?.maxWords ?? ""}
-                          onChange={(e) =>
-                            updateField(field.id, {
-                              validation: {
-                                ...field.validation,
-                                maxWords:
-                                  e.target.value === ""
-                                    ? undefined
-                                    : Number(e.target.value),
-                              },
-                            })
-                          }
-                        />
-                      </Field>
-                    </div>
-                  </>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field>
+                      <FieldLabel htmlFor="field-min-chars">
+                        Min chars
+                      </FieldLabel>
+                      <Input
+                        id="field-min-chars"
+                        type="number"
+                        min={0}
+                        value={field.validation?.minLength ?? ""}
+                        onChange={(e) =>
+                          updateField(field.id, {
+                            validation: {
+                              ...field.validation,
+                              minLength:
+                                e.target.value === ""
+                                  ? undefined
+                                  : Number(e.target.value),
+                            },
+                          })
+                        }
+                      />
+                    </Field>
+                    <Field>
+                      <FieldLabel htmlFor="field-max-chars">
+                        Max chars
+                      </FieldLabel>
+                      <Input
+                        id="field-max-chars"
+                        type="number"
+                        min={0}
+                        value={field.validation?.maxLength ?? ""}
+                        onChange={(e) =>
+                          updateField(field.id, {
+                            validation: {
+                              ...field.validation,
+                              maxLength:
+                                e.target.value === ""
+                                  ? undefined
+                                  : Number(e.target.value),
+                            },
+                          })
+                        }
+                      />
+                    </Field>
+                  </div>
                 )}
 
                 {field.type === "number" && (

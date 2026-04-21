@@ -6,8 +6,7 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
     case "short_text":
     case "long_text": {
       let str = z.string();
-      const { minLength, maxLength, minWords, maxWords } =
-        field.validation ?? {};
+      const { minLength, maxLength } = field.validation ?? {};
 
       if (field.required && !minLength)
         str = str.min(1, "This field is required");
@@ -21,24 +20,7 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
           maxLength,
           `At most ${maxLength} character${maxLength === 1 ? "" : "s"}`,
         );
-
-      if (!minWords && !maxWords) return field.required ? str : str.optional();
-
-      const withWords = str.superRefine((val, ctx) => {
-        if (!field.required && val.trim() === "") return;
-        const count = val.trim() === "" ? 0 : val.trim().split(/\s+/).length;
-        if (minWords !== undefined && count < minWords)
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `At least ${minWords} word${minWords === 1 ? "" : "s"}`,
-          });
-        if (maxWords !== undefined && count > maxWords)
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `At most ${maxWords} word${maxWords === 1 ? "" : "s"}`,
-          });
-      });
-      return field.required ? withWords : withWords.optional();
+      return field.required ? str : str.optional();
     }
     case "number": {
       let base = z.coerce.number();
@@ -48,8 +30,20 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
         base = base.max(field.validation.max);
       return field.required ? base : base.optional();
     }
-    case "date":
-      return field.required ? z.coerce.date() : z.coerce.date().optional();
+    case "date": {
+      let base = z.coerce.date();
+      if (field.validation?.minDate)
+        base = base.min(
+          new Date(field.validation.minDate),
+          `Date must be on or after ${field.validation.minDate}`,
+        );
+      if (field.validation?.maxDate)
+        base = base.max(
+          new Date(field.validation.maxDate),
+          `Date must be on or before ${field.validation.maxDate}`,
+        );
+      return field.required ? base : base.optional();
+    }
     case "single_choice": {
       const values = (field.options ?? []).map((o) => o.value);
       if (values.length < 1) {

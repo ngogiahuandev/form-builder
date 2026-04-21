@@ -16,8 +16,9 @@ export function LongTextField({ field, control }: LongTextFieldProps) {
       name={field.id}
       control={control}
       render={({ field: rhf, fieldState }) => (
-        <PreviewField field={field} error={fieldState.error?.message}>
+        <PreviewField field={field} error={fieldState.error?.message} htmlFor={field.id}>
           <Textarea
+            id={field.id}
             value={rhf.value ?? ""}
             onChange={rhf.onChange}
             onBlur={rhf.onBlur}

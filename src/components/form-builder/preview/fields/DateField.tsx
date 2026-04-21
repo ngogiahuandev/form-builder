@@ -28,10 +28,11 @@ export function DateField({ field, control }: DateFieldProps) {
         const dateValue = rhf.value instanceof Date ? rhf.value : undefined;
 
         return (
-          <PreviewField field={field} error={fieldState.error?.message}>
+          <PreviewField field={field} error={fieldState.error?.message} htmlFor={field.id}>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
+                  id={field.id}
                   variant="outline"
                   className={cn(
                     "w-full justify-start text-left font-normal",

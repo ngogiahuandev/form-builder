@@ -16,8 +16,9 @@ export function ShortTextField({ field, control }: ShortTextFieldProps) {
       name={field.id}
       control={control}
       render={({ field: rhf, fieldState }) => (
-        <PreviewField field={field} error={fieldState.error?.message}>
+        <PreviewField field={field} error={fieldState.error?.message} htmlFor={field.id}>
           <Input
+            id={field.id}
             value={typeof rhf.value === "string" ? rhf.value : ""}
             onChange={rhf.onChange}
             onBlur={rhf.onBlur}

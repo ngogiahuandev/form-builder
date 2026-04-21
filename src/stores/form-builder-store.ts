@@ -278,7 +278,12 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
     }),
     {
       name: "form-builder-state",
-      partialize: (state) => ({ schema: state.schema }),
+      partialize: (state) => ({
+        schema: state.schema,
+        past: state.past,
+        future: state.future,
+        currentLabel: state.currentLabel,
+      }),
     },
   ),
 );

@@ -17,8 +17,8 @@ export interface FormFieldValidation {
   max?: number;
   minLength?: number;
   maxLength?: number;
-  minWords?: number;
-  maxWords?: number;
+  minDate?: string;
+  maxDate?: string;
 }
 
 export interface FormField {

@@ -2,7 +2,7 @@
 
 import { Controller, type Control, type FieldValues } from "react-hook-form";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { PreviewField } from "@/components/form-builder/preview/PreviewField";
 import type { FormField } from "@/types";
 
@@ -37,7 +37,7 @@ export function MultipleChoiceField({
           <PreviewField field={field} error={fieldState.error?.message}>
             <div className="flex flex-col gap-2">
               {options.map((opt) => (
-                <div key={opt.id} className="flex items-center gap-2">
+                <Field key={opt.id} orientation="horizontal">
                   <Checkbox
                     id={`${field.id}-${opt.id}`}
                     checked={selected.includes(opt.value)}
@@ -45,13 +45,13 @@ export function MultipleChoiceField({
                       handleChange(opt.value, checked === true)
                     }
                   />
-                  <Label
+                  <FieldLabel
                     htmlFor={`${field.id}-${opt.id}`}
                     className="font-normal"
                   >
                     {opt.label}
-                  </Label>
-                </div>
+                  </FieldLabel>
+                </Field>
               ))}
             </div>
           </PreviewField>

@@ -1,12 +1,13 @@
 "use client";
 
 import { Controller, type Control, type FieldValues } from "react-hook-form";
-import { Label } from "@/components/ui/label";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
   SelectItem,
+  SelectGroup,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -38,11 +39,13 @@ export function SingleChoiceField({ field, control }: SingleChoiceFieldProps) {
                 />
               </SelectTrigger>
               <SelectContent>
-                {options.map((opt) => (
-                  <SelectItem key={opt.id} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
+                <SelectGroup>
+                  {options.map((opt) => (
+                    <SelectItem key={opt.id} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
               </SelectContent>
             </Select>
           ) : (
@@ -52,18 +55,18 @@ export function SingleChoiceField({ field, control }: SingleChoiceFieldProps) {
               className="flex flex-col gap-2"
             >
               {options.map((opt) => (
-                <div key={opt.id} className="flex items-center gap-2">
+                <Field key={opt.id} orientation="horizontal">
                   <RadioGroupItem
                     value={opt.value}
                     id={`${field.id}-${opt.id}`}
                   />
-                  <Label
+                  <FieldLabel
                     htmlFor={`${field.id}-${opt.id}`}
                     className="font-normal"
                   >
                     {opt.label}
-                  </Label>
-                </div>
+                  </FieldLabel>
+                </Field>
               ))}
             </RadioGroup>
           )}
