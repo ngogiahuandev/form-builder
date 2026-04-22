@@ -208,7 +208,7 @@ export function FieldEditPreview({ field }: FieldEditPreviewProps) {
       return (
         <div className="mt-2 flex gap-1">
           {Array.from({ length: max }, (_, i) => (
-            <Star key={i} className="text-muted-foreground h-6 w-6" />
+            <Star key={i} className="text-muted-foreground/50 h-6 w-6" />
           ))}
         </div>
       );

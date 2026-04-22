@@ -16,7 +16,7 @@ const INITIAL_SCHEMA: FormSchema = {
   settings: {
     submitLabel: "Submit",
     successMessage: "Thank you for your response!",
-    submitAlignment: "left",
+    submitAlignment: "center",
   },
 };
 

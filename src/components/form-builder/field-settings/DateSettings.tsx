@@ -5,7 +5,6 @@ import { CalendarIcon, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -23,6 +22,12 @@ export function DateSettings({ field }: DateSettingsProps) {
   const updateField = useFormBuilderStore((s) => s.updateField);
   const defaultDate = field.defaultValue
     ? new Date(field.defaultValue)
+    : undefined;
+  const minDate = field.validation?.minDate
+    ? new Date(field.validation.minDate)
+    : undefined;
+  const maxDate = field.validation?.maxDate
+    ? new Date(field.validation.maxDate)
     : undefined;
 
   return (
@@ -49,6 +54,10 @@ export function DateSettings({ field }: DateSettingsProps) {
               <Calendar
                 mode="single"
                 selected={defaultDate}
+                disabled={[
+                  ...(minDate ? [{ before: minDate }] : []),
+                  ...(maxDate ? [{ after: maxDate }] : []),
+                ]}
                 onSelect={(date) =>
                   updateField(field.id, { defaultValue: date?.toISOString() })
                 }
@@ -69,36 +78,100 @@ export function DateSettings({ field }: DateSettingsProps) {
       </Field>
       <div className="grid grid-cols-2 gap-3">
         <Field>
-          <FieldLabel htmlFor="field-min-date">Min date</FieldLabel>
-          <Input
-            id="field-min-date"
-            type="date"
-            value={field.validation?.minDate ?? ""}
-            onChange={(e) =>
-              updateField(field.id, {
-                validation: {
-                  ...field.validation,
-                  minDate: e.target.value || undefined,
-                },
-              })
-            }
-          />
+          <FieldLabel>Min date</FieldLabel>
+          <div className="flex gap-1">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "flex-1 justify-start text-left font-normal",
+                    !minDate && "text-muted-foreground",
+                  )}
+                >
+                  <CalendarIcon data-icon="inline-start" />
+                  {minDate ? format(minDate, "PP") : "No min"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={minDate}
+                  disabled={maxDate ? [{ after: maxDate }] : undefined}
+                  onSelect={(date) =>
+                    updateField(field.id, {
+                      validation: {
+                        ...field.validation,
+                        minDate: date?.toISOString(),
+                      },
+                    })
+                  }
+                />
+              </PopoverContent>
+            </Popover>
+            {minDate && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() =>
+                  updateField(field.id, {
+                    validation: { ...field.validation, minDate: undefined },
+                  })
+                }
+              >
+                <Trash2 />
+                <span className="sr-only">Clear min date</span>
+              </Button>
+            )}
+          </div>
         </Field>
         <Field>
-          <FieldLabel htmlFor="field-max-date">Max date</FieldLabel>
-          <Input
-            id="field-max-date"
-            type="date"
-            value={field.validation?.maxDate ?? ""}
-            onChange={(e) =>
-              updateField(field.id, {
-                validation: {
-                  ...field.validation,
-                  maxDate: e.target.value || undefined,
-                },
-              })
-            }
-          />
+          <FieldLabel>Max date</FieldLabel>
+          <div className="flex gap-1">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "flex-1 justify-start text-left font-normal",
+                    !maxDate && "text-muted-foreground",
+                  )}
+                >
+                  <CalendarIcon data-icon="inline-start" />
+                  {maxDate ? format(maxDate, "PP") : "No max"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={maxDate}
+                  disabled={minDate ? [{ before: minDate }] : undefined}
+                  onSelect={(date) =>
+                    updateField(field.id, {
+                      validation: {
+                        ...field.validation,
+                        maxDate: date?.toISOString(),
+                      },
+                    })
+                  }
+                />
+              </PopoverContent>
+            </Popover>
+            {maxDate && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() =>
+                  updateField(field.id, {
+                    validation: { ...field.validation, maxDate: undefined },
+                  })
+                }
+              >
+                <Trash2 />
+                <span className="sr-only">Clear max date</span>
+              </Button>
+            )}
+          </div>
         </Field>
       </div>
     </>

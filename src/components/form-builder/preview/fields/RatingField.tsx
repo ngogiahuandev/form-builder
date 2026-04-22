@@ -58,10 +58,10 @@ function StarRow({ maxStars, value, onChange }: StarRowProps) {
         >
           <Star
             className={cn(
-              "h-7 w-7 transition-colors",
+              "size-6 transition-colors",
               star <= active
                 ? "fill-yellow-400 text-yellow-400"
-                : "text-muted-foreground",
+                : "text-muted-foreground/50",
             )}
           />
         </button>

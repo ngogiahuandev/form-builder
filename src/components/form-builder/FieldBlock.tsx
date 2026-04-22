@@ -299,18 +299,20 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
       </div>
 
       {/* Label row */}
-      <div className="relative flex items-center gap-2">
+      <div className="relative flex min-w-0 flex-wrap items-center gap-x-1 gap-y-0">
         <FieldTypeIcon
           type={field.type}
-          className="text-muted-foreground/50 shrink-0"
+          className="text-muted-foreground/50 mr-1 shrink-0"
         />
         <EditorContent
           editor={editor}
           onClick={(e) => e.stopPropagation()}
-          className="[&_.tiptap_p.is-editor-empty:first-child::before]:text-muted-foreground flex-1 [&_.tiptap]:text-sm [&_.tiptap]:font-medium [&_.tiptap]:outline-none [&_.tiptap_p.is-editor-empty:first-child::before]:pointer-events-none [&_.tiptap_p.is-editor-empty:first-child::before]:float-left [&_.tiptap_p.is-editor-empty:first-child::before]:h-0 [&_.tiptap_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]"
+          className="[&_.tiptap_p.is-editor-empty:first-child::before]:text-muted-foreground min-w-4 [&_.tiptap]:inline-block [&_.tiptap]:min-w-4 [&_.tiptap]:text-sm [&_.tiptap]:font-medium [&_.tiptap]:outline-none [&_.tiptap_p.is-editor-empty:first-child::before]:pointer-events-none [&_.tiptap_p.is-editor-empty:first-child::before]:float-left [&_.tiptap_p.is-editor-empty:first-child::before]:h-0 [&_.tiptap_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]"
         />
         {field.required && (
-          <span className="text-destructive shrink-0 text-sm">*</span>
+          <span className="text-destructive shrink-0 text-sm leading-none">
+            *
+          </span>
         )}
 
         {/* Slash command menu */}

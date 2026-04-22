@@ -59,7 +59,9 @@ export function Canvas() {
           <p className="text-muted-foreground text-sm">
             No fields yet. Add your first one.
           </p>
-          <BlockPalette />
+          <div className="w-full max-w-50">
+            <BlockPalette />
+          </div>
         </div>
       </div>
     );

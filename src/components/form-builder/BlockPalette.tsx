@@ -56,8 +56,8 @@ export function BlockPalette() {
     <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button
-          variant="secondary"
-          className="text-muted-foreground hover:text-foreground gap-2"
+          variant="outline"
+          className="text-muted-foreground hover:text-foreground w-full gap-2"
         >
           <Plus className="h-4 w-4" />
           Add field

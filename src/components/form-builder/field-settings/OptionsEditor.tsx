@@ -1,12 +1,107 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
 import type { FormField, FormFieldOption } from "@/types";
+import { useState } from "react";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Check, GripVertical, Plus, SquareDashed, Trash2 } from "lucide-react";
+
+interface SortableOptionRowProps {
+  option: FormFieldOption;
+  isDefault: boolean;
+  onToggleDefault: () => void;
+  onLabelChange: (label: string) => void;
+  onRemove: () => void;
+}
+
+function SortableOptionRow({
+  option,
+  isDefault,
+  onToggleDefault,
+  onLabelChange,
+  onRemove,
+}: SortableOptionRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: option.id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0 : 1,
+      }}
+      className="group/option flex items-center gap-1.5"
+    >
+      <Button
+        ref={setActivatorNodeRef}
+        variant="ghost"
+        size="icon"
+        {...attributes}
+        {...listeners}
+        className="text-muted-foreground shrink-0 cursor-grab transition-opacity active:cursor-grabbing"
+      >
+        <GripVertical />
+        <span className="sr-only">Drag to reorder</span>
+      </Button>
+      <Input
+        value={option.label}
+        onChange={(e) => onLabelChange(e.target.value)}
+        placeholder="Option label"
+        className="flex-1"
+      />
+      <Button
+        variant={"ghost"}
+        size="icon"
+        onClick={onToggleDefault}
+        className={isDefault ? "shrink-0" : "shrink-0 transition-opacity"}
+      >
+        {isDefault ? <Check /> : <SquareDashed />}
+        <span className="sr-only">
+          {isDefault ? "Remove default" : "Set as default"}
+        </span>
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onRemove}
+        className="shrink-0"
+      >
+        <Trash2 />
+        <span className="sr-only">Remove option</span>
+      </Button>
+    </div>
+  );
+}
 
 interface OptionsEditorProps {
   field: FormField;
@@ -17,6 +112,15 @@ export function OptionsEditor({ field }: OptionsEditorProps) {
   const updateFieldDeferred = useFormBuilderStore((s) => s.updateFieldDeferred);
   const options = field.options ?? [];
   const isMultiple = field.type === "multiple_choice";
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const activeOption = options.find((o) => o.id === activeId);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   const isDefault = (optValue: string) => {
     if (isMultiple) return (field.defaultValues ?? []).includes(optValue);
@@ -78,47 +182,68 @@ export function OptionsEditor({ field }: OptionsEditorProps) {
     updateField(field.id, updates);
   };
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveId(null);
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const fromIndex = options.findIndex((o) => o.id === active.id);
+    const toIndex = options.findIndex((o) => o.id === over.id);
+    if (fromIndex === -1 || toIndex === -1) return;
+    const reordered = [...options];
+    const [moved] = reordered.splice(fromIndex, 1);
+    reordered.splice(toIndex, 0, moved!);
+    updateField(field.id, { options: reordered });
+  };
+
   return (
     <Field>
       <FieldLabel>Options</FieldLabel>
       <div className="flex flex-col gap-2">
-        {options.map((option) => (
-          <div key={option.id} className="group/option flex items-center gap-2">
-            <Input
-              value={option.label}
-              onChange={(e) => handleLabelChange(option.id, e.target.value)}
-              placeholder="Option label"
-              className="flex-1"
-            />
-            {isDefault(option.value) ? (
-              <button
-                type="button"
-                onClick={() => handleToggleDefault(option.value)}
-                className="shrink-0"
-              >
-                <Badge variant="secondary" className="cursor-pointer text-xs">
-                  Default
-                </Badge>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => handleToggleDefault(option.value)}
-                className="text-muted-foreground hover:text-foreground shrink-0 text-xs opacity-0 transition-opacity group-hover/option:opacity-100"
-              >
-                Set default
-              </button>
-            )}
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => handleRemove(option.id)}
-            >
-              <Trash2 />
-              <span className="sr-only">Remove option</span>
-            </Button>
-          </div>
-        ))}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          modifiers={[restrictToVerticalAxis]}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={() => setActiveId(null)}
+        >
+          <SortableContext
+            items={options.map((o) => o.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {options.map((option) => (
+              <SortableOptionRow
+                key={option.id}
+                option={option}
+                isDefault={isDefault(option.value)}
+                onToggleDefault={() => handleToggleDefault(option.value)}
+                onLabelChange={(label) => handleLabelChange(option.id, label)}
+                onRemove={() => handleRemove(option.id)}
+              />
+            ))}
+          </SortableContext>
+
+          <DragOverlay dropAnimation={null}>
+            {activeOption ? (
+              <div className="bg-background flex items-center gap-1.5">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground shrink-0 cursor-grabbing"
+                >
+                  <GripVertical />
+                </Button>
+                <div className="border-muted flex-1 truncate rounded-lg border px-2.5 py-1">
+                  {activeOption.label}
+                </div>
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
         <Button variant="outline" size="sm" onClick={handleAdd}>
           <Plus data-icon="inline-start" />
           Add option

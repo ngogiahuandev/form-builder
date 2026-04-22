@@ -103,7 +103,7 @@ export function PhoneSettings({ field }: PhoneSettingsProps) {
               value={query}
               onValueChange={setQuery}
             />
-            <CommandList>
+            <CommandList className="max-h-none overflow-hidden">
               <ScrollArea className="h-72">
                 <CommandEmpty>No country found.</CommandEmpty>
                 <CommandGroup>
