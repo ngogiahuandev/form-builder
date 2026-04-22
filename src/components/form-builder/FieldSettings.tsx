@@ -1,17 +1,8 @@
 "use client";
 
-import { format } from "date-fns";
-import { CalendarIcon, Plus, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -26,132 +17,18 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
-import type { FormField, FormFieldOption } from "@/types";
-
-interface OptionsEditorProps {
-  field: FormField;
-}
-
-function OptionsEditor({ field }: OptionsEditorProps) {
-  const updateField = useFormBuilderStore((s) => s.updateField);
-  const updateFieldDeferred = useFormBuilderStore((s) => s.updateFieldDeferred);
-  const options = field.options ?? [];
-  const isMultiple = field.type === "multiple_choice";
-
-  const isDefault = (optValue: string) => {
-    if (isMultiple) return (field.defaultValues ?? []).includes(optValue);
-    return field.defaultValue === optValue;
-  };
-
-  const handleToggleDefault = (optValue: string) => {
-    if (isMultiple) {
-      const current = field.defaultValues ?? [];
-      updateField(field.id, {
-        defaultValues: current.includes(optValue)
-          ? current.filter((v) => v !== optValue)
-          : [...current, optValue],
-      });
-    } else {
-      updateField(field.id, {
-        defaultValue: field.defaultValue === optValue ? undefined : optValue,
-      });
-    }
-  };
-
-  const handleAdd = () => {
-    const n = options.length + 1;
-    const newOption: FormFieldOption = {
-      id: crypto.randomUUID(),
-      label: `Option ${n}`,
-      value: `option_${n}`,
-    };
-    updateField(field.id, { options: [...options, newOption] });
-  };
-
-  const handleLabelChange = (optionId: string, label: string) => {
-    updateFieldDeferred(field.id, {
-      options: options.map((o) =>
-        o.id === optionId
-          ? {
-              ...o,
-              label,
-              value: label.toLowerCase().replace(/\s+/g, "_") || o.value,
-            }
-          : o,
-      ),
-    });
-  };
-
-  const handleRemove = (optionId: string) => {
-    const opt = options.find((o) => o.id === optionId);
-    const updates: Partial<FormField> = {
-      options: options.filter((o) => o.id !== optionId),
-    };
-    if (opt) {
-      if (!isMultiple && field.defaultValue === opt.value) {
-        updates.defaultValue = undefined;
-      }
-      if (isMultiple && (field.defaultValues ?? []).includes(opt.value)) {
-        updates.defaultValues = (field.defaultValues ?? []).filter(
-          (v) => v !== opt.value,
-        );
-      }
-    }
-    updateField(field.id, updates);
-  };
-
-  return (
-    <Field>
-      <FieldLabel>Options</FieldLabel>
-      <div className="flex flex-col gap-2">
-        {options.map((option) => (
-          <div key={option.id} className="group/option flex items-center gap-2">
-            <Input
-              value={option.label}
-              onChange={(e) => handleLabelChange(option.id, e.target.value)}
-              placeholder="Option label"
-              className="flex-1"
-            />
-            {isDefault(option.value) ? (
-              <button
-                type="button"
-                onClick={() => handleToggleDefault(option.value)}
-                className="shrink-0"
-              >
-                <Badge variant="secondary" className="cursor-pointer text-xs">
-                  Default
-                </Badge>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => handleToggleDefault(option.value)}
-                className="text-muted-foreground hover:text-foreground shrink-0 text-xs opacity-0 transition-opacity group-hover/option:opacity-100"
-              >
-                Set default
-              </button>
-            )}
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => handleRemove(option.id)}
-            >
-              <Trash2 />
-              <span className="sr-only">Remove option</span>
-            </Button>
-          </div>
-        ))}
-        <Button variant="outline" size="sm" onClick={handleAdd}>
-          <Plus data-icon="inline-start" />
-          Add option
-        </Button>
-      </div>
-    </Field>
-  );
-}
+import { CommonFields } from "./field-settings/CommonFields";
+import { DateSettings } from "./field-settings/DateSettings";
+import { HeadingSettings } from "./field-settings/HeadingSettings";
+import { LinearScaleSettings } from "./field-settings/LinearScaleSettings";
+import { NumberValidation } from "./field-settings/NumberValidation";
+import { OptionsEditor } from "./field-settings/OptionsEditor";
+import { PhoneSettings } from "./field-settings/PhoneSettings";
+import { RatingSettings } from "./field-settings/RatingSettings";
+import { TextValidation } from "./field-settings/TextValidation";
+import { UrlSettings } from "./field-settings/UrlSettings";
 
 export function FieldSettings() {
   const {
@@ -159,7 +36,6 @@ export function FieldSettings() {
     selectedFieldId,
     setSelectedFieldId,
     updateField,
-    updateFieldDeferred,
     removeField,
   } = useFormBuilderStore();
   const field = schema.fields.find((f) => f.id === selectedFieldId);
@@ -170,10 +46,6 @@ export function FieldSettings() {
       setSelectedFieldId(null);
     }
   };
-
-  const defaultDate = field?.defaultValue
-    ? new Date(field.defaultValue)
-    : undefined;
 
   return (
     <Sheet
@@ -193,7 +65,8 @@ export function FieldSettings() {
             </SheetHeader>
             <div className="px-4">
               <FieldGroup>
-                {field.type === "divider" ? (
+                {/* ── Divider ── */}
+                {field.type === "divider" && (
                   <Button
                     variant="destructive"
                     className="w-full"
@@ -202,361 +75,139 @@ export function FieldSettings() {
                     <Trash2 data-icon="inline-start" />
                     Delete divider
                   </Button>
-                ) : (
-                <>
-                <Field>
-                  <FieldLabel htmlFor="field-label">Question</FieldLabel>
-                  <Input
-                    id="field-label"
-                    value={field.label}
-                    onChange={(e) =>
-                      updateFieldDeferred(field.id, { label: e.target.value })
-                    }
-                    placeholder="e.g. What is your name?"
-                  />
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="field-placeholder">
-                    Placeholder
-                  </FieldLabel>
-                  <Input
-                    id="field-placeholder"
-                    value={field.placeholder ?? ""}
-                    onChange={(e) =>
-                      updateFieldDeferred(field.id, {
-                        placeholder: e.target.value,
-                      })
-                    }
-                    placeholder="e.g. Enter your name…"
-                  />
-                </Field>
-
-                {(field.type === "short_text" ||
-                  field.type === "long_text" ||
-                  field.type === "number") && (
-                  <Field>
-                    <FieldLabel htmlFor="field-default">
-                      Default value
-                    </FieldLabel>
-                    <Input
-                      id="field-default"
-                      type={field.type === "number" ? "number" : "text"}
-                      value={field.defaultValue ?? ""}
-                      onChange={(e) =>
-                        updateFieldDeferred(field.id, {
-                          defaultValue: e.target.value || undefined,
-                        })
-                      }
-                      placeholder="Pre-filled value"
-                    />
-                  </Field>
                 )}
 
-                {field.type === "date" && (
+                {/* ── Heading ── */}
+                {field.type === "heading" && (
                   <>
-                    <Field>
-                      <FieldLabel>Default date</FieldLabel>
-                      <div className="flex gap-2">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "flex-1 justify-start text-left font-normal",
-                                !defaultDate && "text-muted-foreground",
-                              )}
-                            >
-                              <CalendarIcon data-icon="inline-start" />
-                              {defaultDate
-                                ? format(defaultDate, "PPP")
-                                : "Pick a default date"}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={defaultDate}
-                              onSelect={(date) =>
-                                updateField(field.id, {
-                                  defaultValue: date?.toISOString(),
-                                })
-                              }
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        {defaultDate && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() =>
-                              updateField(field.id, { defaultValue: undefined })
-                            }
-                          >
-                            <Trash2 />
-                            <span className="sr-only">Clear date</span>
-                          </Button>
-                        )}
-                      </div>
-                    </Field>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Field>
-                        <FieldLabel htmlFor="field-min-date">
-                          Min date
-                        </FieldLabel>
-                        <Input
-                          id="field-min-date"
-                          type="date"
-                          value={field.validation?.minDate ?? ""}
-                          onChange={(e) =>
-                            updateField(field.id, {
-                              validation: {
-                                ...field.validation,
-                                minDate: e.target.value || undefined,
-                              },
-                            })
-                          }
-                        />
-                      </Field>
-                      <Field>
-                        <FieldLabel htmlFor="field-max-date">
-                          Max date
-                        </FieldLabel>
-                        <Input
-                          id="field-max-date"
-                          type="date"
-                          value={field.validation?.maxDate ?? ""}
-                          onChange={(e) =>
-                            updateField(field.id, {
-                              validation: {
-                                ...field.validation,
-                                maxDate: e.target.value || undefined,
-                              },
-                            })
-                          }
-                        />
-                      </Field>
-                    </div>
+                    <HeadingSettings field={field} />
+                    <Button
+                      variant="destructive"
+                      className="w-full"
+                      onClick={handleDelete}
+                    >
+                      <Trash2 data-icon="inline-start" />
+                      Delete heading
+                    </Button>
                   </>
                 )}
 
-                <Field>
-                  <FieldLabel htmlFor="field-help">Help text</FieldLabel>
-                  <Input
-                    id="field-help"
-                    value={field.helpText ?? ""}
-                    onChange={(e) =>
-                      updateFieldDeferred(field.id, {
-                        helpText: e.target.value,
-                      })
-                    }
-                    placeholder="A short description below the label"
-                  />
-                </Field>
-
-                <Field orientation="horizontal">
-                  <FieldLabel htmlFor="field-required">Required</FieldLabel>
-                  <Switch
-                    id="field-required"
-                    checked={field.required}
-                    onCheckedChange={(checked) =>
-                      updateField(field.id, { required: checked })
-                    }
-                  />
-                </Field>
-
-                {field.type === "single_choice" && (
-                  <Field>
-                    <FieldLabel>Display as</FieldLabel>
-                    <Select
-                      value={field.variant ?? "radio"}
-                      onValueChange={(v) =>
-                        updateField(field.id, {
-                          variant: v as "radio" | "select",
-                        })
+                {/* ── All input field types ── */}
+                {field.type !== "divider" && field.type !== "heading" && (
+                  <>
+                    <CommonFields
+                      field={field}
+                      showPlaceholder={
+                        field.type !== "rating" && field.type !== "yes_no"
                       }
+                      showDefaultText={
+                        field.type === "short_text" ||
+                        field.type === "long_text" ||
+                        field.type === "email" ||
+                        field.type === "url" ||
+                        field.type === "number"
+                      }
+                      placeholderHint={
+                        field.type === "email"
+                          ? "e.g. your@email.com"
+                          : field.type === "url"
+                            ? "e.g. https://example.com"
+                            : field.type === "phone"
+                              ? "e.g. +1 (555) 000-0000"
+                              : field.type === "time"
+                                ? "e.g. 09:00"
+                                : undefined
+                      }
+                    />
+
+                    {/* Time default */}
+                    {field.type === "time" && (
+                      <Field>
+                        <FieldLabel htmlFor="field-default-time">
+                          Default time
+                        </FieldLabel>
+                        <Input
+                          id="field-default-time"
+                          type="time"
+                          value={field.defaultValue ?? ""}
+                          onChange={(e) =>
+                            updateField(field.id, {
+                              defaultValue: e.target.value || undefined,
+                            })
+                          }
+                        />
+                      </Field>
+                    )}
+
+                    {/* Date */}
+                    {field.type === "date" && <DateSettings field={field} />}
+
+                    {/* Phone */}
+                    {field.type === "phone" && <PhoneSettings field={field} />}
+
+                    {/* URL */}
+                    {field.type === "url" && <UrlSettings field={field} />}
+
+                    {/* Single choice variant */}
+                    {field.type === "single_choice" && (
+                      <Field>
+                        <FieldLabel>Display as</FieldLabel>
+                        <Select
+                          value={field.variant ?? "radio"}
+                          onValueChange={(v) =>
+                            updateField(field.id, {
+                              variant: v as "radio" | "select",
+                            })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="radio">Radio buttons</SelectItem>
+                            <SelectItem value="select">Dropdown</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    )}
+
+                    {/* Options */}
+                    {(field.type === "single_choice" ||
+                      field.type === "multiple_choice" ||
+                      field.type === "select") && (
+                      <OptionsEditor field={field} />
+                    )}
+
+                    {/* Rating */}
+                    {field.type === "rating" && (
+                      <RatingSettings field={field} />
+                    )}
+
+                    {/* Linear scale */}
+                    {field.type === "linear_scale" && (
+                      <LinearScaleSettings field={field} />
+                    )}
+
+                    {/* Text validation */}
+                    {(field.type === "short_text" ||
+                      field.type === "long_text") && (
+                      <TextValidation field={field} />
+                    )}
+
+                    {/* Number validation */}
+                    {field.type === "number" && (
+                      <NumberValidation field={field} />
+                    )}
+
+                    <Button
+                      variant="destructive"
+                      className="w-full"
+                      onClick={handleDelete}
                     >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="radio">Radio buttons</SelectItem>
-                        <SelectItem value="select">Dropdown</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                )}
-
-                {(field.type === "single_choice" ||
-                  field.type === "multiple_choice" ||
-                  field.type === "select") && (
-                  <OptionsEditor field={field} />
-                )}
-
-                {field.type === "linear_scale" && (
-                  <div className="grid grid-cols-3 gap-3">
-                    <Field>
-                      <FieldLabel htmlFor="scale-from">From</FieldLabel>
-                      <Input
-                        id="scale-from"
-                        type="number"
-                        value={field.validation?.scaleFrom ?? ""}
-                        onChange={(e) =>
-                          updateFieldDeferred(field.id, {
-                            validation: {
-                              ...field.validation,
-                              scaleFrom:
-                                e.target.value === ""
-                                  ? undefined
-                                  : Number(e.target.value),
-                            },
-                          })
-                        }
-                      />
-                    </Field>
-                    <Field>
-                      <FieldLabel htmlFor="scale-to">To</FieldLabel>
-                      <Input
-                        id="scale-to"
-                        type="number"
-                        value={field.validation?.scaleTo ?? ""}
-                        onChange={(e) =>
-                          updateFieldDeferred(field.id, {
-                            validation: {
-                              ...field.validation,
-                              scaleTo:
-                                e.target.value === ""
-                                  ? undefined
-                                  : Number(e.target.value),
-                            },
-                          })
-                        }
-                      />
-                    </Field>
-                    <Field>
-                      <FieldLabel htmlFor="scale-jump">Jump</FieldLabel>
-                      <Input
-                        id="scale-jump"
-                        type="number"
-                        value={field.validation?.scaleJump ?? ""}
-                        onChange={(e) =>
-                          updateFieldDeferred(field.id, {
-                            validation: {
-                              ...field.validation,
-                              scaleJump:
-                                e.target.value === ""
-                                  ? undefined
-                                  : Number(e.target.value),
-                            },
-                          })
-                        }
-                      />
-                    </Field>
-                  </div>
-                )}
-
-                {(field.type === "short_text" ||
-                  field.type === "long_text") && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field>
-                      <FieldLabel htmlFor="field-min-chars">
-                        Min chars
-                      </FieldLabel>
-                      <Input
-                        id="field-min-chars"
-                        type="number"
-                        min={0}
-                        value={field.validation?.minLength ?? ""}
-                        onChange={(e) =>
-                          updateFieldDeferred(field.id, {
-                            validation: {
-                              ...field.validation,
-                              minLength:
-                                e.target.value === ""
-                                  ? undefined
-                                  : Number(e.target.value),
-                            },
-                          })
-                        }
-                      />
-                    </Field>
-                    <Field>
-                      <FieldLabel htmlFor="field-max-chars">
-                        Max chars
-                      </FieldLabel>
-                      <Input
-                        id="field-max-chars"
-                        type="number"
-                        min={0}
-                        value={field.validation?.maxLength ?? ""}
-                        onChange={(e) =>
-                          updateFieldDeferred(field.id, {
-                            validation: {
-                              ...field.validation,
-                              maxLength:
-                                e.target.value === ""
-                                  ? undefined
-                                  : Number(e.target.value),
-                            },
-                          })
-                        }
-                      />
-                    </Field>
-                  </div>
-                )}
-
-                {field.type === "number" && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field>
-                      <FieldLabel htmlFor="field-min">Min</FieldLabel>
-                      <Input
-                        id="field-min"
-                        type="number"
-                        value={field.validation?.min ?? ""}
-                        onChange={(e) =>
-                          updateFieldDeferred(field.id, {
-                            validation: {
-                              ...field.validation,
-                              min:
-                                e.target.value === ""
-                                  ? undefined
-                                  : Number(e.target.value),
-                            },
-                          })
-                        }
-                      />
-                    </Field>
-                    <Field>
-                      <FieldLabel htmlFor="field-max">Max</FieldLabel>
-                      <Input
-                        id="field-max"
-                        type="number"
-                        value={field.validation?.max ?? ""}
-                        onChange={(e) =>
-                          updateFieldDeferred(field.id, {
-                            validation: {
-                              ...field.validation,
-                              max:
-                                e.target.value === ""
-                                  ? undefined
-                                  : Number(e.target.value),
-                            },
-                          })
-                        }
-                      />
-                    </Field>
-                  </div>
-                )}
-
-                <Button
-                  variant="destructive"
-                  className="w-full"
-                  onClick={handleDelete}
-                >
-                  <Trash2 data-icon="inline-start" />
-                  Delete field
-                </Button>
-                </>
+                      <Trash2 data-icon="inline-start" />
+                      Delete field
+                    </Button>
+                  </>
                 )}
               </FieldGroup>
             </div>

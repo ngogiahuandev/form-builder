@@ -7,7 +7,14 @@ export type FieldType =
   | "date"
   | "select"
   | "linear_scale"
-  | "divider";
+  | "divider"
+  | "email"
+  | "phone"
+  | "url"
+  | "rating"
+  | "time"
+  | "yes_no"
+  | "heading";
 
 export interface FormFieldOption {
   id: string;
@@ -39,6 +46,11 @@ export interface FormField {
   validation?: FormFieldValidation;
   defaultValue?: string;
   defaultValues?: string[];
+  headingLevel?: "h1" | "h2" | "h3";
+  /** Default country code for phone fields (e.g. "US", "VN", "GB"). */
+  defaultCountry?: string;
+  /** Allowed domains for URL fields. Empty/undefined means any domain is accepted. */
+  allowedDomains?: string[];
 }
 
 export interface FormSettings {

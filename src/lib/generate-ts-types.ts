@@ -1,14 +1,24 @@
 import type { FormField } from "@/types";
 
+const NON_DATA_TYPES = new Set(["divider", "heading"]);
+
 function fieldTypeString(field: FormField): string {
   switch (field.type) {
     case "short_text":
     case "long_text":
+    case "email":
+    case "phone":
+    case "url":
+    case "time":
       return "string";
     case "number":
+    case "rating":
+    case "linear_scale":
       return "number";
     case "date":
       return "Date";
+    case "yes_no":
+      return '"yes" | "no"';
     case "single_choice":
     case "select": {
       const values = (field.options ?? [])
@@ -22,15 +32,14 @@ function fieldTypeString(field: FormField): string {
         .join(" | ");
       return values ? `Array<${values}>` : "string[]";
     }
-    case "linear_scale":
-      return "number";
     case "divider":
+    case "heading":
       return "";
   }
 }
 
 export function generateTsTypes(fields: FormField[]): string {
-  const dataFields = fields.filter((f) => f.type !== "divider");
+  const dataFields = fields.filter((f) => !NON_DATA_TYPES.has(f.type));
   if (dataFields.length === 0) return "export interface FormValues {}";
 
   const lines = dataFields.map((field) => {

@@ -6,9 +6,16 @@ import {
   CheckSquare,
   ChevronsUpDown,
   CircleDot,
+  Clock,
+  Globe,
   Hash,
+  Heading,
+  Mail,
   Minus,
+  Phone,
   SlidersHorizontal,
+  Star,
+  ThumbsUp,
   Type,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -25,6 +32,13 @@ const ICON_MAP = {
   select: ChevronsUpDown,
   linear_scale: SlidersHorizontal,
   divider: Minus,
+  email: Mail,
+  phone: Phone,
+  url: Globe,
+  rating: Star,
+  time: Clock,
+  yes_no: ThumbsUp,
+  heading: Heading,
 } as const satisfies Record<FieldType, ComponentType<{ className?: string }>>;
 
 interface FieldTypeIconProps {

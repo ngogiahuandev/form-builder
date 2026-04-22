@@ -1,13 +1,20 @@
 "use client";
 
 import { DateField } from "@/components/form-builder/preview/fields/DateField";
+import { EmailField } from "@/components/form-builder/preview/fields/EmailField";
+import { HeadingField } from "@/components/form-builder/preview/fields/HeadingField";
 import { LinearScaleField } from "@/components/form-builder/preview/fields/LinearScaleField";
 import { LongTextField } from "@/components/form-builder/preview/fields/LongTextField";
 import { MultipleChoiceField } from "@/components/form-builder/preview/fields/MultipleChoiceField";
 import { NumberField } from "@/components/form-builder/preview/fields/NumberField";
+import { PhoneField } from "@/components/form-builder/preview/fields/PhoneField";
+import { RatingField } from "@/components/form-builder/preview/fields/RatingField";
 import { SelectField } from "@/components/form-builder/preview/fields/SelectField";
 import { ShortTextField } from "@/components/form-builder/preview/fields/ShortTextField";
 import { SingleChoiceField } from "@/components/form-builder/preview/fields/SingleChoiceField";
+import { TimeField } from "@/components/form-builder/preview/fields/TimeField";
+import { UrlField } from "@/components/form-builder/preview/fields/UrlField";
+import { YesNoField } from "@/components/form-builder/preview/fields/YesNoField";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -30,6 +37,12 @@ function renderField(
       return <ShortTextField key={field.id} field={field} control={control} />;
     case "long_text":
       return <LongTextField key={field.id} field={field} control={control} />;
+    case "email":
+      return <EmailField key={field.id} field={field} control={control} />;
+    case "phone":
+      return <PhoneField key={field.id} field={field} control={control} />;
+    case "url":
+      return <UrlField key={field.id} field={field} control={control} />;
     case "single_choice":
       return (
         <SingleChoiceField key={field.id} field={field} control={control} />
@@ -42,12 +55,20 @@ function renderField(
       return <NumberField key={field.id} field={field} control={control} />;
     case "date":
       return <DateField key={field.id} field={field} control={control} />;
+    case "time":
+      return <TimeField key={field.id} field={field} control={control} />;
     case "select":
       return <SelectField key={field.id} field={field} control={control} />;
+    case "rating":
+      return <RatingField key={field.id} field={field} control={control} />;
+    case "yes_no":
+      return <YesNoField key={field.id} field={field} control={control} />;
     case "linear_scale":
       return (
         <LinearScaleField key={field.id} field={field} control={control} />
       );
+    case "heading":
+      return <HeadingField key={field.id} field={field} />;
     case "divider":
       return <Separator key={field.id} className="my-4" />;
   }
@@ -80,7 +101,6 @@ export function FormPreview() {
 
   return (
     <div>
-      {/* Header — matches FormHeader layout exactly */}
       <div className="mb-10 px-3">
         {schema.title && (
           <h1 className="text-3xl leading-tight font-bold">{schema.title}</h1>
@@ -91,7 +111,6 @@ export function FormPreview() {
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        {/* Field list — matches Canvas  + FieldBlock px-3 py-2 */}
         <div className="flex flex-col">
           {schema.fields.map((field) => renderField(field, form.control))}
         </div>

@@ -42,7 +42,7 @@ export function PreviewField({
         )}
       </div>
       {field.helpText && <FieldDescription>{field.helpText}</FieldDescription>}
-      <div className="mt-2">{children}</div>
+      <div>{children}</div>
       <FieldError>{error}</FieldError>
     </Field>
   );

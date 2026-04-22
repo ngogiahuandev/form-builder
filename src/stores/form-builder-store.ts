@@ -16,7 +16,7 @@ const INITIAL_SCHEMA: FormSchema = {
   settings: {
     submitLabel: "Submit",
     successMessage: "Thank you for your response!",
-    submitAlignment: "center",
+    submitAlignment: "left",
   },
 };
 
@@ -30,6 +30,13 @@ const DEFAULT_LABELS = {
   select: "Select",
   linear_scale: "Linear Scale",
   divider: "Divider",
+  email: "Email",
+  phone: "Phone Number",
+  url: "Website URL",
+  rating: "Rating",
+  time: "Time",
+  yes_no: "Yes / No",
+  heading: "Section Heading",
 } as const satisfies Record<FieldType, string>;
 
 function buildDefaultField(type: FieldType): FormField {
@@ -51,6 +58,9 @@ function buildDefaultField(type: FieldType): FormField {
       ...base,
       validation: { scaleFrom: 1, scaleTo: 5, scaleJump: 1 },
     };
+  }
+  if (type === "heading") {
+    return { ...base, headingLevel: "h2" as const };
   }
   return base;
 }
@@ -106,6 +116,7 @@ interface FormBuilderActions {
   jumpToHistory: (combinedIndex: number) => void;
   setSelectedFieldId: (id: string | null) => void;
   setActiveMode: (mode: "edit" | "preview" | "history") => void;
+  resetForm: () => void;
 }
 
 export type FormBuilderStore = FormBuilderState & FormBuilderActions;
@@ -351,6 +362,18 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
 
       setSelectedFieldId: (id) => set({ selectedFieldId: id }),
       setActiveMode: (mode) => set({ activeMode: mode }),
+
+      resetForm: () => {
+        cancelDeferred();
+        set({
+          schema: { ...INITIAL_SCHEMA, id: crypto.randomUUID() },
+          past: [],
+          future: [],
+          currentLabel: "Initial state",
+          selectedFieldId: null,
+          activeMode: "edit",
+        });
+      },
     }),
     {
       name: "form-builder-state",

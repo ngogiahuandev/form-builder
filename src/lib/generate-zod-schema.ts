@@ -1,6 +1,8 @@
 import { z } from "zod";
 import type { FormField } from "@/types";
 
+const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
 function buildFieldSchema(field: FormField): z.ZodTypeAny {
   switch (field.type) {
     case "short_text":
@@ -21,6 +23,41 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
           `At most ${maxLength} character${maxLength === 1 ? "" : "s"}`,
         );
       return field.required ? str : str.optional();
+    }
+    case "email": {
+      const base = z.string().email("Enter a valid email address");
+      return field.required
+        ? base.min(1, "This field is required")
+        : base.optional();
+    }
+    case "phone": {
+      const base = z.string();
+      return field.required
+        ? base.min(1, "This field is required")
+        : base.optional();
+    }
+    case "url": {
+      const domains = field.allowedDomains ?? [];
+      const urlBase = z.string().url("Enter a valid URL");
+      if (domains.length === 0) {
+        return field.required
+          ? urlBase.min(1, "This field is required")
+          : urlBase.optional();
+      }
+      const validated = urlBase.refine(
+        (val) => {
+          try {
+            const { hostname } = new URL(val);
+            return domains.some(
+              (d) => hostname === d || hostname.endsWith(`.${d}`),
+            );
+          } catch {
+            return false;
+          }
+        },
+        { message: `URL must be from: ${domains.join(", ")}` },
+      );
+      return field.required ? validated : validated.optional();
     }
     case "number": {
       let base = z.coerce.number();
@@ -43,6 +80,12 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
           `Date must be on or before ${field.validation.maxDate}`,
         );
       return field.required ? base : base.optional();
+    }
+    case "time": {
+      const base = z.string().regex(TIME_REGEX, "Enter a valid time (HH:MM)");
+      return field.required
+        ? base.min(1, "This field is required")
+        : base.optional();
     }
     case "single_choice": {
       const values = (field.options ?? []).map((o) => o.value);
@@ -77,15 +120,27 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
       const enumSchema = z.enum(values as [string, ...string[]]);
       return field.required ? enumSchema : enumSchema.optional();
     }
+    case "rating": {
+      const max = field.validation?.max ?? 5;
+      const base = z.coerce.number().min(1).max(max);
+      return field.required
+        ? base.refine((v) => v >= 1, "This field is required")
+        : base.optional();
+    }
+    case "yes_no": {
+      const enumSchema = z.enum(["yes", "no"]);
+      return field.required ? enumSchema : enumSchema.optional();
+    }
     case "linear_scale": {
       const from = field.validation?.scaleFrom ?? 1;
       const to = field.validation?.scaleTo ?? 5;
-      let base = z.coerce.number().min(from).max(to);
+      const base = z.coerce.number().min(from).max(to);
       return field.required
         ? base.refine((v) => v !== undefined, "This field is required")
         : base.optional();
     }
     case "divider":
+    case "heading":
       return z.never();
   }
 }
@@ -95,7 +150,7 @@ export function generateZodSchema(
 ): z.ZodObject<Record<string, z.ZodTypeAny>> {
   const shape: Record<string, z.ZodTypeAny> = {};
   for (const field of fields) {
-    if (field.type === "divider") continue;
+    if (field.type === "divider" || field.type === "heading") continue;
     shape[field.id] = buildFieldSchema(field);
   }
 
@@ -107,10 +162,14 @@ export function generateDefaultValues(
 ): Record<string, unknown> {
   const defaults: Record<string, unknown> = {};
   for (const field of fields) {
-    if (field.type === "divider") continue;
+    if (field.type === "divider" || field.type === "heading") continue;
     switch (field.type) {
       case "short_text":
       case "long_text":
+      case "email":
+      case "phone":
+      case "url":
+      case "time":
         defaults[field.id] = field.defaultValue ?? "";
         break;
       case "number":
@@ -122,6 +181,12 @@ export function generateDefaultValues(
       case "single_choice":
       case "select":
         defaults[field.id] = field.defaultValue;
+        break;
+      case "rating":
+        defaults[field.id] =
+          field.defaultValue !== undefined
+            ? Number(field.defaultValue)
+            : undefined;
         break;
       case "linear_scale":
         defaults[field.id] =
@@ -136,6 +201,9 @@ export function generateDefaultValues(
         defaults[field.id] = field.defaultValue
           ? new Date(field.defaultValue)
           : undefined;
+        break;
+      case "yes_no":
+        defaults[field.id] = field.defaultValue as "yes" | "no" | undefined;
         break;
     }
   }

@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Eye, History, Redo2, SquarePen, Undo2 } from "lucide-react";
+import { Eye, History, Redo2, RotateCcw, SquarePen, Undo2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
@@ -15,7 +15,7 @@ import { ThemeToggle } from "@/components/form-builder/ThemeToggle";
 import { FormPreview } from "@/components/form-builder/preview/FormPreview";
 
 export function FormBuilder() {
-  const { activeMode, setActiveMode, past, future, undo, redo } =
+  const { activeMode, setActiveMode, past, future, undo, redo, resetForm } =
     useFormBuilderStore();
   const [mounted, setMounted] = useState(false);
 
@@ -55,20 +55,30 @@ export function FormBuilder() {
       >
         <header className="bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-10 border-b backdrop-blur">
           <div className="mx-auto flex max-w-3xl items-center justify-between px-3 py-3">
-            <TabsList>
-              <TabsTrigger value="edit">
-                <SquarePen className="h-4 w-4" />
-                Edit
-              </TabsTrigger>
-              <TabsTrigger value="preview">
-                <Eye className="h-4 w-4" />
-                Preview
-              </TabsTrigger>
-              <TabsTrigger value="history">
-                <History className="h-4 w-4" />
-                History
-              </TabsTrigger>
-            </TabsList>
+            <div className="flex items-center gap-2">
+              <TabsList>
+                <TabsTrigger value="edit">
+                  <SquarePen className="h-4 w-4" />
+                  Edit
+                </TabsTrigger>
+                <TabsTrigger value="preview">
+                  <Eye className="h-4 w-4" />
+                  Preview
+                </TabsTrigger>
+                <TabsTrigger value="history">
+                  <History className="h-4 w-4" />
+                  History
+                </TabsTrigger>
+              </TabsList>
+              <Button
+                variant="ghost"
+                onClick={resetForm}
+                className="text-muted-foreground hover:text-destructive"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Clear all
+              </Button>
+            </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"

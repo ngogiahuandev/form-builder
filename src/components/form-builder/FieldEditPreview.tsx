@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -15,11 +15,18 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import type { FormField } from "@/types";
 
 interface FieldEditPreviewProps {
   field: FormField;
 }
+
+const HEADING_CLASSES = {
+  h1: "text-2xl font-bold",
+  h2: "text-xl font-semibold",
+  h3: "text-lg font-medium",
+} as const;
 
 export function FieldEditPreview({ field }: FieldEditPreviewProps) {
   const placeholder = field.placeholder;
@@ -44,6 +51,36 @@ export function FieldEditPreview({ field }: FieldEditPreviewProps) {
         />
       );
 
+    case "email":
+      return (
+        <Input
+          disabled
+          type="email"
+          placeholder={placeholder ?? "your@email.com"}
+          className="mt-2 cursor-default"
+        />
+      );
+
+    case "phone":
+      return (
+        <Input
+          disabled
+          type="tel"
+          placeholder={placeholder ?? "+1 (555) 000-0000"}
+          className="mt-2 cursor-default"
+        />
+      );
+
+    case "url":
+      return (
+        <Input
+          disabled
+          type="url"
+          placeholder={placeholder ?? "https://example.com"}
+          className="mt-2 cursor-default"
+        />
+      );
+
     case "number":
       return (
         <Input
@@ -65,6 +102,9 @@ export function FieldEditPreview({ field }: FieldEditPreviewProps) {
           {placeholder ?? "Pick a date"}
         </Button>
       );
+
+    case "time":
+      return <Input type="time" disabled className="mt-2 cursor-default" />;
 
     case "single_choice": {
       const options = field.options ?? [];
@@ -163,6 +203,29 @@ export function FieldEditPreview({ field }: FieldEditPreviewProps) {
       );
     }
 
+    case "rating": {
+      const max = field.validation?.max ?? 5;
+      return (
+        <div className="mt-2 flex gap-1">
+          {Array.from({ length: max }, (_, i) => (
+            <Star key={i} className="text-muted-foreground h-6 w-6" />
+          ))}
+        </div>
+      );
+    }
+
+    case "yes_no":
+      return (
+        <div className="mt-2 flex gap-3">
+          <Button variant="outline" disabled className="flex-1">
+            Yes
+          </Button>
+          <Button variant="outline" disabled className="flex-1">
+            No
+          </Button>
+        </div>
+      );
+
     case "linear_scale": {
       const from = field.validation?.scaleFrom ?? 1;
       const to = field.validation?.scaleTo ?? 5;
@@ -177,6 +240,16 @@ export function FieldEditPreview({ field }: FieldEditPreviewProps) {
             </Button>
           ))}
         </div>
+      );
+    }
+
+    case "heading": {
+      const level = field.headingLevel ?? "h2";
+      const Tag = level;
+      return (
+        <Tag className={cn("mt-1 leading-tight", HEADING_CLASSES[level])}>
+          {field.label || "Heading"}
+        </Tag>
       );
     }
 
