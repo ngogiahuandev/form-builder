@@ -5,6 +5,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { Copy, GripVertical, Plus, Trash2 } from "lucide-react";
+import { useEffect } from "react";
 import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -20,6 +21,7 @@ import type { FieldType, FormField } from "@/types";
 import { FieldEditPreview } from "@/components/form-builder/FieldEditPreview";
 import { FieldPaletteContent } from "@/components/form-builder/FieldPaletteContent";
 import { FieldTypeIcon } from "@/components/form-builder/FieldTypeIcon";
+import { MarkdownField } from "@/components/form-builder/preview/fields/MarkdownField";
 
 const SingleLine = Extension.create({
   name: "singleLine",
@@ -131,6 +133,18 @@ function InlineTextBlock({
   const level = field.headingLevel ?? "h2";
   const align = field.textAlign ?? "left";
 
+  const layoutStyle: React.CSSProperties = (() => {
+    const decorations: string[] = [];
+    if (field.fontUnderline) decorations.push("underline");
+    if (field.fontStrikethrough) decorations.push("line-through");
+    return {
+      fontWeight: field.fontBold ? "bold" : undefined,
+      fontStyle: field.fontItalic ? "italic" : undefined,
+      textDecoration: decorations.length > 0 ? decorations.join(" ") : undefined,
+      color: field.textColor || undefined,
+    };
+  })();
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -143,6 +157,15 @@ function InlineTextBlock({
     immediatelyRender: false,
     onUpdate: ({ editor }) => updateFieldLabel(field.id, editor.getText()),
   });
+
+  // Sync when the settings panel textarea updates the label externally.
+  // `false` as the second arg prevents TipTap from re-emitting the update.
+  useEffect(() => {
+    if (!editor) return;
+    if (editor.getText() !== field.label) {
+      editor.commands.setContent(field.label, { emitUpdate: false });
+    }
+  }, [editor, field.label]);
 
   const label = isHeading ? "heading" : "description";
 
@@ -202,8 +225,8 @@ function InlineTextBlock({
 
       {/* Inline-editable text. Clicking the text just edits; clicking outside
           the text (on the surrounding block) opens the settings sheet. The
-          wrapper div carries the alignment so it works even while editing. */}
-      <div className={cn("leading-tight", TEXT_ALIGN_CLASSES[align])}>
+          wrapper div carries the alignment and layout styles. */}
+      <div className={cn("leading-tight", TEXT_ALIGN_CLASSES[align])} style={layoutStyle}>
         <EditorContent
           editor={editor}
           onClick={(e) => e.stopPropagation()}
@@ -221,6 +244,87 @@ function InlineTextBlock({
           )}
         />
       </div>
+    </div>
+  );
+}
+
+function MarkdownCanvasBlock({
+  field,
+  index,
+  isSelected,
+  setNodeRef,
+  setActivatorNodeRef,
+  attributes,
+  listeners,
+  style,
+}: InlineTextBlockProps) {
+  const { setSelectedFieldId, removeField, duplicateField } =
+    useFormBuilderStore();
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      onClick={() => setSelectedFieldId(field.id)}
+      className={cn(
+        "group/block hover:bg-accent/40 relative cursor-pointer rounded-md px-3 py-2 transition-colors",
+        isSelected && "bg-accent/40 ring-primary/20 ring-1",
+      )}
+    >
+      {/* Left gutter — visible on hover */}
+      <div className="absolute top-0 right-full flex items-center gap-0.5 pr-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={(e) => {
+            e.stopPropagation();
+            removeField(field.id);
+          }}
+          className="hover:bg-destructive/10 hover:text-destructive opacity-0 transition-opacity group-hover/block:opacity-100"
+        >
+          <Trash2 />
+          <span className="sr-only">Delete markdown block</span>
+        </Button>
+        <InsertPalette index={index} />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={(e) => {
+            e.stopPropagation();
+            duplicateField(field.id);
+          }}
+          className="opacity-0 transition-opacity group-hover/block:opacity-100"
+        >
+          <Copy />
+          <span className="sr-only">Duplicate markdown block</span>
+        </Button>
+        <Button
+          ref={setActivatorNodeRef}
+          variant="ghost"
+          size="icon"
+          {...attributes}
+          {...listeners}
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedFieldId(field.id);
+          }}
+          className="cursor-grab opacity-0 transition-opacity group-hover/block:opacity-100 active:cursor-grabbing"
+        >
+          <GripVertical />
+          <span className="sr-only">Drag to reorder</span>
+        </Button>
+      </div>
+
+      {/* Rendered markdown preview (pointer-events disabled so clicks bubble to the block) */}
+      {field.label ? (
+        <div className="pointer-events-none">
+          <MarkdownField field={field} />
+        </div>
+      ) : (
+        <p className="text-muted-foreground/50 px-3 py-2 text-sm italic">
+          Write markdown content in the settings panel…
+        </p>
+      )}
     </div>
   );
 }
@@ -298,13 +402,24 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
     );
   }
 
-  // Heading & Description — rendered like the form title: a bare, inline,
-  // self-sized editor with no type icon or label row. Clicking the text
-  // itself just edits; clicking the surrounding block opens the settings
-  // sheet (where heading level / text align live).
   if (field.type === "heading" || field.type === "description") {
     return (
       <InlineTextBlock
+        field={field}
+        index={index}
+        isSelected={isSelected}
+        setNodeRef={setNodeRef}
+        setActivatorNodeRef={setActivatorNodeRef}
+        attributes={attributes}
+        listeners={listeners}
+        style={style}
+      />
+    );
+  }
+
+  if (field.type === "markdown") {
+    return (
+      <MarkdownCanvasBlock
         field={field}
         index={index}
         isSelected={isSelected}

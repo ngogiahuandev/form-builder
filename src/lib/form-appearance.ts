@@ -84,6 +84,25 @@ export const FORM_COLORS: FormColor[] = [
 
 export const DEFAULT_FORM_COLOR_KEY = "default";
 
+export interface LayoutTextColor {
+  key: string;
+  label: string;
+  hex: string | null;
+}
+
+export const LAYOUT_TEXT_COLORS: LayoutTextColor[] = [
+  { key: "", label: "Default", hex: null },
+  { key: "#09090b", label: "Black", hex: "#09090b" },
+  { key: "#6b7280", label: "Gray", hex: "#6b7280" },
+  { key: "#ef4444", label: "Red", hex: "#ef4444" },
+  { key: "#f97316", label: "Orange", hex: "#f97316" },
+  { key: "#eab308", label: "Yellow", hex: "#eab308" },
+  { key: "#22c55e", label: "Green", hex: "#22c55e" },
+  { key: "#3b82f6", label: "Blue", hex: "#3b82f6" },
+  { key: "#8b5cf6", label: "Purple", hex: "#8b5cf6" },
+  { key: "#ec4899", label: "Pink", hex: "#ec4899" },
+];
+
 export function getFormColor(key: string): FormColor {
   return FORM_COLORS.find((c) => c.key === key) ?? FORM_COLORS[0]!;
 }

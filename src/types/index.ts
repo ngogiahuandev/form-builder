@@ -16,6 +16,7 @@ export type FieldType =
   | "yes_no"
   | "heading"
   | "description"
+  | "markdown"
   | "code";
 
 export interface FormFieldOption {
@@ -65,6 +66,13 @@ export interface FormField {
    * by the `code` field for syntax highlighting.
    */
   codeLanguage?: string;
+  // ── Layout block styles (heading / description / markdown) ──
+  fontBold?: boolean;
+  fontItalic?: boolean;
+  fontUnderline?: boolean;
+  fontStrikethrough?: boolean;
+  /** CSS color string, or undefined for the field type's default color. */
+  textColor?: string;
 }
 
 export interface FormSettings {

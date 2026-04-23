@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FORM_COLORS } from "@/lib/form-appearance";
+import { getFormFont } from "@/lib/form-fonts";
 import { cn } from "@/lib/utils";
 import type { StoredForm } from "@/types";
 
@@ -40,6 +41,7 @@ export function FormCard({ form, onDelete }: FormCardProps) {
   const fieldCount = form.schema.fields.length;
   const title = form.schema.title || "Untitled Form";
   const primaryColorKey = form.schema.settings.primaryColor ?? "default";
+  const formFont = getFormFont(form.schema.settings.fontFamily);
   const color = FORM_COLORS.find((c) => c.key === primaryColorKey);
   const showColorDot = color !== undefined && color.primary !== null;
 
@@ -74,7 +76,10 @@ export function FormCard({ form, onDelete }: FormCardProps) {
       >
         <CardHeader className="pb-2">
           <div className="flex items-start justify-between gap-2">
-            <CardTitle className="line-clamp-2 text-base leading-snug">
+            <CardTitle
+              className="line-clamp-2 text-base leading-snug"
+              style={{ fontFamily: formFont.fontFamily }}
+            >
               {title}
             </CardTitle>
             <DropdownMenu>

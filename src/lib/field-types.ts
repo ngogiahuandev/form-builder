@@ -149,6 +149,13 @@ export const FIELD_TYPES: FieldTypeMeta[] = [
     group: "Layout",
   },
   {
+    type: "markdown",
+    label: "Markdown",
+    description: "Rich text block that renders markdown — bold, lists, links.",
+    examples: "Formatted instructions, Terms & conditions",
+    group: "Layout",
+  },
+  {
     type: "divider",
     label: "Divider",
     description: "A horizontal line to visually separate sections.",

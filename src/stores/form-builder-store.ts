@@ -49,6 +49,7 @@ const DEFAULT_LABELS = {
   yes_no: "Yes / No",
   heading: "Section Heading",
   description: "Add a description…",
+  markdown: "**Bold**, *italic*, [links](url), lists…",
   code: "Code",
 } as const satisfies Record<FieldType, string>;
 

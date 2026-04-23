@@ -168,6 +168,7 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
     case "divider":
     case "heading":
     case "description":
+    case "markdown":
       return z.never();
   }
 }
@@ -180,7 +181,8 @@ export function generateZodSchema(
     if (
       field.type === "divider" ||
       field.type === "heading" ||
-      field.type === "description"
+      field.type === "description" ||
+      field.type === "markdown"
     )
       continue;
     shape[field.id] = buildFieldSchema(field);
@@ -197,7 +199,8 @@ export function generateDefaultValues(
     if (
       field.type === "divider" ||
       field.type === "heading" ||
-      field.type === "description"
+      field.type === "description" ||
+      field.type === "markdown"
     )
       continue;
     switch (field.type) {

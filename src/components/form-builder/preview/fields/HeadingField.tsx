@@ -19,6 +19,13 @@ const TEXT_ALIGN_CLASSES = {
   right: "text-right",
 } as const;
 
+function buildTextDecoration(field: FormField): string | undefined {
+  const parts: string[] = [];
+  if (field.fontUnderline) parts.push("underline");
+  if (field.fontStrikethrough) parts.push("line-through");
+  return parts.length > 0 ? parts.join(" ") : undefined;
+}
+
 export function HeadingField({ field }: HeadingFieldProps) {
   const level = field.headingLevel ?? "h2";
   const align = field.textAlign ?? "left";
@@ -32,6 +39,12 @@ export function HeadingField({ field }: HeadingFieldProps) {
           HEADING_CLASSES[level],
           TEXT_ALIGN_CLASSES[align],
         )}
+        style={{
+          fontWeight: field.fontBold ? "bold" : undefined,
+          fontStyle: field.fontItalic ? "italic" : undefined,
+          textDecoration: buildTextDecoration(field),
+          color: field.textColor || undefined,
+        }}
       >
         {field.label || "Heading"}
       </Tag>

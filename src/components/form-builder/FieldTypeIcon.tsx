@@ -17,6 +17,7 @@ import {
   Pilcrow,
   SlidersHorizontal,
   Star,
+  TextQuote,
   ThumbsUp,
   Type,
 } from "lucide-react";
@@ -42,6 +43,7 @@ const ICON_MAP = {
   yes_no: ThumbsUp,
   heading: Heading,
   description: Pilcrow,
+  markdown: TextQuote,
   code: Braces,
 } as const satisfies Record<FieldType, ComponentType<{ className?: string }>>;
 

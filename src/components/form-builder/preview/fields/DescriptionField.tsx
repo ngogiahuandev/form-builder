@@ -13,6 +13,13 @@ const TEXT_ALIGN_CLASSES = {
   right: "text-right",
 } as const;
 
+function buildTextDecoration(field: FormField): string | undefined {
+  const parts: string[] = [];
+  if (field.fontUnderline) parts.push("underline");
+  if (field.fontStrikethrough) parts.push("line-through");
+  return parts.length > 0 ? parts.join(" ") : undefined;
+}
+
 export function DescriptionField({ field }: DescriptionFieldProps) {
   const align = field.textAlign ?? "left";
 
@@ -25,6 +32,12 @@ export function DescriptionField({ field }: DescriptionFieldProps) {
           "text-muted-foreground text-sm leading-relaxed",
           TEXT_ALIGN_CLASSES[align],
         )}
+        style={{
+          fontWeight: field.fontBold ? "bold" : undefined,
+          fontStyle: field.fontItalic ? "italic" : undefined,
+          textDecoration: buildTextDecoration(field),
+          color: field.textColor || undefined,
+        }}
       >
         {field.label}
       </p>

@@ -22,8 +22,7 @@ import { useFormBuilderStore } from "@/stores/form-builder-store";
 import { CodeSettings } from "./field-settings/CodeSettings";
 import { CommonFields } from "./field-settings/CommonFields";
 import { DateSettings } from "./field-settings/DateSettings";
-import { DescriptionSettings } from "./field-settings/DescriptionSettings";
-import { HeadingSettings } from "./field-settings/HeadingSettings";
+import { LayoutContentSettings } from "./field-settings/LayoutContentSettings";
 import { LinearScaleSettings } from "./field-settings/LinearScaleSettings";
 import { NumberValidation } from "./field-settings/NumberValidation";
 import { OptionsEditor } from "./field-settings/OptionsEditor";
@@ -79,32 +78,24 @@ export function FieldSettings() {
                   </Button>
                 )}
 
-                {/* ── Heading ── */}
-                {field.type === "heading" && (
+                {/* ── Layout blocks (heading / description / markdown) ── */}
+                {(field.type === "heading" ||
+                  field.type === "description" ||
+                  field.type === "markdown") && (
                   <>
-                    <HeadingSettings field={field} />
+                    <LayoutContentSettings field={field} />
                     <Button
                       variant="destructive"
                       className="w-full"
                       onClick={handleDelete}
                     >
                       <Trash2 data-icon="inline-start" />
-                      Delete heading
-                    </Button>
-                  </>
-                )}
-
-                {/* ── Description ── */}
-                {field.type === "description" && (
-                  <>
-                    <DescriptionSettings field={field} />
-                    <Button
-                      variant="destructive"
-                      className="w-full"
-                      onClick={handleDelete}
-                    >
-                      <Trash2 data-icon="inline-start" />
-                      Delete description
+                      Delete{" "}
+                      {field.type === "heading"
+                        ? "heading"
+                        : field.type === "description"
+                          ? "description"
+                          : "markdown block"}
                     </Button>
                   </>
                 )}
@@ -112,7 +103,8 @@ export function FieldSettings() {
                 {/* ── All input field types ── */}
                 {field.type !== "divider" &&
                   field.type !== "heading" &&
-                  field.type !== "description" && (
+                  field.type !== "description" &&
+                  field.type !== "markdown" && (
                     <>
                       <CommonFields
                         field={field}

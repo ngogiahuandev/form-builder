@@ -1,6 +1,6 @@
 import type { FormField } from "@/types";
 
-const NON_DATA_TYPES = new Set(["divider", "heading", "description"]);
+const NON_DATA_TYPES = new Set(["divider", "heading", "description", "markdown"]);
 
 function fieldTypeString(field: FormField): string {
   switch (field.type) {
@@ -36,6 +36,7 @@ function fieldTypeString(field: FormField): string {
     case "divider":
     case "heading":
     case "description":
+    case "markdown":
       return "";
   }
 }

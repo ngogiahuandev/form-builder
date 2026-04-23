@@ -22,7 +22,7 @@ export function YesNoField({ field, control }: YesNoFieldProps) {
               <button
                 key={option}
                 type="button"
-                onClick={() => rhf.onChange(option)}
+                onClick={() => rhf.onChange(rhf.value === option ? "" : option)}
                 className={cn(
                   "flex-1 rounded-md border px-4 py-2 text-sm font-medium capitalize transition-colors",
                   rhf.value === option
