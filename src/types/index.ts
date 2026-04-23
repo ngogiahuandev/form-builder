@@ -76,12 +76,26 @@ export interface FormSettings {
    * applied to the entire form (edit canvas + preview).
    */
   fontFamily: string;
+  /** 0–5 index into BORDER_RADIUS_VALUES (none → full). Default 4. */
+  borderRadius: number;
+  /** Key from FORM_COLORS (see `src/lib/form-appearance.ts`). Default "default". */
+  primaryColor: string;
 }
 
 export interface HistoryEntry {
   schema: FormSchema;
   label: string;
   timestamp: number;
+}
+
+export interface StoredForm {
+  id: string;
+  schema: FormSchema;
+  past: HistoryEntry[];
+  future: HistoryEntry[];
+  currentLabel: string;
+  createdAt: number;
+  updatedAt: number;
 }
 
 export interface FormSchema {

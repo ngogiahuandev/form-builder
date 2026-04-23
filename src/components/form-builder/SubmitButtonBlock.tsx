@@ -30,7 +30,7 @@ export function SubmitButtonBlock() {
         <div className="absolute top-0 right-full flex items-center pr-1">
           <Button
             variant="ghost"
-            size="icon-sm"
+            size="icon"
             onClick={() => setOpen(true)}
             className="opacity-0 transition-opacity group-hover/submit:opacity-100"
           >

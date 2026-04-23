@@ -244,7 +244,7 @@ export function OptionsEditor({ field }: OptionsEditorProps) {
             ) : null}
           </DragOverlay>
         </DndContext>
-        <Button variant="outline" size="sm" onClick={handleAdd}>
+        <Button variant="outline" onClick={handleAdd}>
           <Plus data-icon="inline-start" />
           Add option
         </Button>

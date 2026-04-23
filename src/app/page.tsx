@@ -1,5 +1,5 @@
-import { FormBuilder } from "@/components/form-builder/FormBuilder";
+import { FormsListClient } from "@/components/forms-list/FormsListClient";
 
 export default function Home() {
-  return <FormBuilder />;
+  return <FormsListClient />;
 }

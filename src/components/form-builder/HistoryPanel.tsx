@@ -37,7 +37,7 @@ export function HistoryPanel() {
     .reverse();
 
   return (
-    <ScrollArea className="flex max-h-96 w-full flex-col overflow-y-auto py-4">
+    <ScrollArea className="flex w-full flex-col py-4">
       {reversed.map(({ label, timestamp, originalIdx }) => {
         const isCurrent = originalIdx === currentIndex;
         const isFuture = originalIdx > currentIndex;

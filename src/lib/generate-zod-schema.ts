@@ -25,10 +25,17 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
       return field.required ? str : str.optional();
     }
     case "email": {
-      const base = z.string().email("Enter a valid email address");
-      return field.required
-        ? base.min(1, "This field is required")
-        : base.optional();
+      if (field.required) {
+        return z
+          .string()
+          .min(1, "This field is required")
+          .email("Enter a valid email address");
+      }
+      // Allow empty string (no entry) OR a valid email; reject malformed input.
+      return z.union([
+        z.literal(""),
+        z.string().email("Enter a valid email address"),
+      ]);
     }
     case "phone": {
       const base = z.string();

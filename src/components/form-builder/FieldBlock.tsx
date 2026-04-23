@@ -45,7 +45,7 @@ function InsertPalette({ index }: { index: number }) {
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           onClick={(e) => e.stopPropagation()}
           className="opacity-0 transition-opacity group-hover/block:opacity-100"
         >
@@ -160,7 +160,7 @@ function InlineTextBlock({
       <div className="absolute top-0 right-full flex items-center gap-0.5 pr-1">
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           onClick={(e) => {
             e.stopPropagation();
             removeField(field.id);
@@ -173,7 +173,7 @@ function InlineTextBlock({
         <InsertPalette index={index} />
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           onClick={(e) => {
             e.stopPropagation();
             duplicateField(field.id);
@@ -186,7 +186,7 @@ function InlineTextBlock({
         <Button
           ref={setActivatorNodeRef}
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           {...attributes}
           {...listeners}
           onClick={(e) => {
@@ -333,7 +333,7 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
         <div className="absolute top-0 right-full flex items-center gap-0.5 pr-1">
           <Button
             variant="ghost"
-            size="icon-sm"
+            size="icon"
             onClick={(e) => {
               e.stopPropagation();
               removeField(field.id);
@@ -347,7 +347,7 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
           <Button
             ref={setActivatorNodeRef}
             variant="ghost"
-            size="icon-sm"
+            size="icon"
             {...attributes}
             {...listeners}
             onClick={(e) => {
@@ -380,7 +380,7 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
       <div className="absolute top-0 right-full flex items-center gap-0.5 pr-1">
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           onClick={(e) => {
             e.stopPropagation();
             removeField(field.id);
@@ -393,7 +393,7 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
         <InsertPalette index={index} />
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           onClick={(e) => {
             e.stopPropagation();
             duplicateField(field.id);
@@ -407,7 +407,7 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
         <Button
           ref={setActivatorNodeRef}
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           {...attributes}
           {...listeners}
           onClick={(e) => {
