@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import type { FormField } from "@/types";
 import { FieldTypeIcon } from "@/components/form-builder/FieldTypeIcon";
 import { FieldEditPreview } from "@/components/form-builder/FieldEditPreview";
@@ -8,11 +9,52 @@ interface FieldBlockGhostProps {
   field: FormField;
 }
 
+const HEADING_CLASSES = {
+  h1: "text-3xl font-bold",
+  h2: "text-2xl font-semibold",
+  h3: "text-xl font-medium",
+} as const;
+
+const TEXT_ALIGN_CLASSES = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+} as const;
+
 export function FieldBlockGhost({ field }: FieldBlockGhostProps) {
+  // Divider — no label row, just the preview line.
   if (field.type === "divider") {
     return (
       <div className="bg-background rounded-md px-3 py-2 opacity-50">
         <FieldEditPreview field={field} />
+      </div>
+    );
+  }
+
+  // Heading & Description — match the inline-only rendering from the canvas
+  // so the drag preview looks like the real block instead of a generic
+  // "question" row.
+  if (field.type === "heading" || field.type === "description") {
+    const align = field.textAlign ?? "left";
+    const isHeading = field.type === "heading";
+    const level = field.headingLevel ?? "h2";
+    const text = field.label || (isHeading ? "Heading" : "Add a description…");
+    const Tag = isHeading ? level : "p";
+
+    return (
+      <div className="bg-background rounded-md px-3 py-2 opacity-50">
+        <div className={cn("leading-tight", TEXT_ALIGN_CLASSES[align])}>
+          <Tag
+            className={cn(
+              "inline-block",
+              isHeading
+                ? HEADING_CLASSES[level]
+                : "text-muted-foreground text-sm leading-relaxed",
+            )}
+          >
+            {text}
+          </Tag>
+        </div>
       </div>
     );
   }

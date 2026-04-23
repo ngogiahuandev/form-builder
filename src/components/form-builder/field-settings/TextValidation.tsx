@@ -20,6 +20,7 @@ export function TextValidation({ field }: TextValidationProps) {
           id="field-min-chars"
           type="number"
           min={0}
+          placeholder="e.g. 3"
           value={field.validation?.minLength ?? ""}
           onChange={(e) =>
             updateFieldDeferred(field.id, {
@@ -38,6 +39,7 @@ export function TextValidation({ field }: TextValidationProps) {
           id="field-max-chars"
           type="number"
           min={0}
+          placeholder="e.g. 500"
           value={field.validation?.maxLength ?? ""}
           onChange={(e) =>
             updateFieldDeferred(field.id, {

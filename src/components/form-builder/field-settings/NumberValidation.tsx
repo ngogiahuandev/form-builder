@@ -19,6 +19,7 @@ export function NumberValidation({ field }: NumberValidationProps) {
         <Input
           id="field-min"
           type="number"
+          placeholder="e.g. 0"
           value={field.validation?.min ?? ""}
           onChange={(e) =>
             updateFieldDeferred(field.id, {
@@ -35,6 +36,7 @@ export function NumberValidation({ field }: NumberValidationProps) {
         <Input
           id="field-max"
           type="number"
+          placeholder="e.g. 100"
           value={field.validation?.max ?? ""}
           onChange={(e) =>
             updateFieldDeferred(field.id, {

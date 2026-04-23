@@ -19,6 +19,7 @@ export function LinearScaleSettings({ field }: LinearScaleSettingsProps) {
         <Input
           id="scale-from"
           type="number"
+          placeholder="e.g. 1"
           value={field.validation?.scaleFrom ?? ""}
           onChange={(e) =>
             updateFieldDeferred(field.id, {
@@ -36,6 +37,7 @@ export function LinearScaleSettings({ field }: LinearScaleSettingsProps) {
         <Input
           id="scale-to"
           type="number"
+          placeholder="e.g. 10"
           value={field.validation?.scaleTo ?? ""}
           onChange={(e) =>
             updateFieldDeferred(field.id, {
@@ -53,6 +55,7 @@ export function LinearScaleSettings({ field }: LinearScaleSettingsProps) {
         <Input
           id="scale-jump"
           type="number"
+          placeholder="e.g. 1"
           value={field.validation?.scaleJump ?? ""}
           onChange={(e) =>
             updateFieldDeferred(field.id, {

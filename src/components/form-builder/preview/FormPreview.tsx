@@ -1,6 +1,8 @@
 "use client";
 
+import { CodeField } from "@/components/form-builder/preview/fields/CodeField";
 import { DateField } from "@/components/form-builder/preview/fields/DateField";
+import { DescriptionField } from "@/components/form-builder/preview/fields/DescriptionField";
 import { EmailField } from "@/components/form-builder/preview/fields/EmailField";
 import { HeadingField } from "@/components/form-builder/preview/fields/HeadingField";
 import { LinearScaleField } from "@/components/form-builder/preview/fields/LinearScaleField";
@@ -67,8 +69,12 @@ function renderField(
       return (
         <LinearScaleField key={field.id} field={field} control={control} />
       );
+    case "code":
+      return <CodeField key={field.id} field={field} control={control} />;
     case "heading":
       return <HeadingField key={field.id} field={field} />;
+    case "description":
+      return <DescriptionField key={field.id} field={field} />;
     case "divider":
       return <Separator key={field.id} className="my-4" />;
   }

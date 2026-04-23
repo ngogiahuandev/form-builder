@@ -1,7 +1,6 @@
 "use client";
 
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -11,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
 import type { FormField } from "@/types";
+import { TextAlignToggle } from "./TextAlignToggle";
 
 interface HeadingSettingsProps {
   field: FormField;
@@ -18,23 +18,14 @@ interface HeadingSettingsProps {
 
 export function HeadingSettings({ field }: HeadingSettingsProps) {
   const updateField = useFormBuilderStore((s) => s.updateField);
-  const updateFieldDeferred = useFormBuilderStore((s) => s.updateFieldDeferred);
 
   return (
     <>
       <Field>
-        <FieldLabel htmlFor="heading-label">Heading text</FieldLabel>
-        <Input
-          id="heading-label"
-          value={field.label}
-          onChange={(e) =>
-            updateFieldDeferred(field.id, { label: e.target.value })
-          }
-          placeholder="e.g. Section title"
-        />
-      </Field>
-      <Field>
         <FieldLabel>Heading level</FieldLabel>
+        <FieldDescription>
+          Edit the heading text inline on the canvas.
+        </FieldDescription>
         <Select
           value={field.headingLevel ?? "h2"}
           onValueChange={(v) =>
@@ -51,6 +42,7 @@ export function HeadingSettings({ field }: HeadingSettingsProps) {
           </SelectContent>
         </Select>
       </Field>
+      <TextAlignToggle field={field} />
     </>
   );
 }

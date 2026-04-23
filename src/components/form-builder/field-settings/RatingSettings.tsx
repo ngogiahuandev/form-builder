@@ -20,6 +20,7 @@ export function RatingSettings({ field }: RatingSettingsProps) {
         type="number"
         min={1}
         max={10}
+        placeholder="e.g. 5"
         value={field.validation?.max ?? 5}
         onChange={(e) =>
           updateField(field.id, {

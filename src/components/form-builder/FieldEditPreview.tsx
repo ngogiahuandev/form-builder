@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { CodeEditor } from "@/components/form-builder/CodeEditor";
+import { AUTO_DETECT_KEY, getCodeLanguage } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
 import type { FormField } from "@/types";
 
@@ -26,6 +28,12 @@ const HEADING_CLASSES = {
   h1: "text-2xl font-bold",
   h2: "text-xl font-semibold",
   h3: "text-lg font-medium",
+} as const;
+
+const TEXT_ALIGN_CLASSES = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
 } as const;
 
 export function FieldEditPreview({ field }: FieldEditPreviewProps) {
@@ -243,13 +251,60 @@ export function FieldEditPreview({ field }: FieldEditPreviewProps) {
       );
     }
 
+    case "code": {
+      const isAuto = field.codeLanguage === AUTO_DETECT_KEY;
+      const badgeLabel = isAuto
+        ? "Auto-detect"
+        : getCodeLanguage(field.codeLanguage).label;
+      return (
+        <div className="mt-2 flex flex-col gap-1.5">
+          <div className="text-muted-foreground flex items-center text-xs">
+            <span className="bg-muted inline-flex items-center rounded px-1.5 py-0.5 font-mono">
+              {badgeLabel}
+            </span>
+          </div>
+          <div className="pointer-events-none">
+            <CodeEditor
+              value={field.defaultValue ?? ""}
+              language={field.codeLanguage}
+              placeholder={placeholder ?? "Write your code…"}
+              readOnly
+              minHeight="6rem"
+              maxHeight="12rem"
+            />
+          </div>
+        </div>
+      );
+    }
+
     case "heading": {
       const level = field.headingLevel ?? "h2";
+      const align = field.textAlign ?? "left";
       const Tag = level;
       return (
-        <Tag className={cn("mt-1 leading-tight", HEADING_CLASSES[level])}>
+        <Tag
+          className={cn(
+            "mt-1 leading-tight",
+            HEADING_CLASSES[level],
+            TEXT_ALIGN_CLASSES[align],
+          )}
+        >
           {field.label || "Heading"}
         </Tag>
+      );
+    }
+
+    case "description": {
+      const align = field.textAlign ?? "left";
+      return (
+        <p
+          className={cn(
+            "text-muted-foreground mt-1 text-sm leading-relaxed",
+            TEXT_ALIGN_CLASSES[align],
+          )}
+        >
+          {field.label || "Description"}
+        </p>
       );
     }
 

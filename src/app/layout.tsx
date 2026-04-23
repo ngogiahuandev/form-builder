@@ -1,5 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Inter,
+  JetBrains_Mono,
+  Lora,
+  Merriweather,
+  Playfair_Display,
+  Roboto,
+  Space_Grotesk,
+} from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -14,6 +24,40 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+// Form-level fonts — exposed as CSS variables and switched at runtime via
+// FormSettings.fontFamily. See src/lib/form-fonts.ts for the user-facing list.
+const roboto = Roboto({
+  variable: "--font-form-roboto",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+});
+
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-form-space-grotesk",
+  subsets: ["latin"],
+});
+
+const lora = Lora({
+  variable: "--font-form-lora",
+  subsets: ["latin"],
+});
+
+const merriweather = Merriweather({
+  variable: "--font-form-merriweather",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-form-playfair",
+  subsets: ["latin"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-form-jetbrains-mono",
   subsets: ["latin"],
 });
 
@@ -38,6 +82,12 @@ export default function RootLayout({
         geistMono.variable,
         "font-sans",
         inter.variable,
+        roboto.variable,
+        spaceGrotesk.variable,
+        lora.variable,
+        merriweather.variable,
+        playfair.variable,
+        jetbrainsMono.variable,
       )}
     >
       <body className="flex min-h-full flex-col">

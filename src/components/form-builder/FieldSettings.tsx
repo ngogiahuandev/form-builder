@@ -19,8 +19,10 @@ import {
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
+import { CodeSettings } from "./field-settings/CodeSettings";
 import { CommonFields } from "./field-settings/CommonFields";
 import { DateSettings } from "./field-settings/DateSettings";
+import { DescriptionSettings } from "./field-settings/DescriptionSettings";
 import { HeadingSettings } from "./field-settings/HeadingSettings";
 import { LinearScaleSettings } from "./field-settings/LinearScaleSettings";
 import { NumberValidation } from "./field-settings/NumberValidation";
@@ -92,123 +94,149 @@ export function FieldSettings() {
                   </>
                 )}
 
-                {/* ── All input field types ── */}
-                {field.type !== "divider" && field.type !== "heading" && (
+                {/* ── Description ── */}
+                {field.type === "description" && (
                   <>
-                    <CommonFields
-                      field={field}
-                      showPlaceholder={
-                        field.type !== "rating" && field.type !== "yes_no"
-                      }
-                      showDefaultText={
-                        field.type === "short_text" ||
-                        field.type === "long_text" ||
-                        field.type === "email" ||
-                        field.type === "url" ||
-                        field.type === "number"
-                      }
-                      placeholderHint={
-                        field.type === "email"
-                          ? "e.g. your@email.com"
-                          : field.type === "url"
-                            ? "e.g. https://example.com"
-                            : field.type === "phone"
-                              ? "e.g. +1 (555) 000-0000"
-                              : field.type === "time"
-                                ? "e.g. 09:00"
-                                : undefined
-                      }
-                    />
-
-                    {/* Time default */}
-                    {field.type === "time" && (
-                      <Field>
-                        <FieldLabel htmlFor="field-default-time">
-                          Default time
-                        </FieldLabel>
-                        <Input
-                          id="field-default-time"
-                          type="time"
-                          value={field.defaultValue ?? ""}
-                          onChange={(e) =>
-                            updateField(field.id, {
-                              defaultValue: e.target.value || undefined,
-                            })
-                          }
-                        />
-                      </Field>
-                    )}
-
-                    {/* Date */}
-                    {field.type === "date" && <DateSettings field={field} />}
-
-                    {/* Phone */}
-                    {field.type === "phone" && <PhoneSettings field={field} />}
-
-                    {/* URL */}
-                    {field.type === "url" && <UrlSettings field={field} />}
-
-                    {/* Single choice variant */}
-                    {field.type === "single_choice" && (
-                      <Field>
-                        <FieldLabel>Display as</FieldLabel>
-                        <Select
-                          value={field.variant ?? "radio"}
-                          onValueChange={(v) =>
-                            updateField(field.id, {
-                              variant: v as "radio" | "select",
-                            })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="radio">Radio buttons</SelectItem>
-                            <SelectItem value="select">Dropdown</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </Field>
-                    )}
-
-                    {/* Options */}
-                    {(field.type === "single_choice" ||
-                      field.type === "multiple_choice" ||
-                      field.type === "select") && (
-                      <OptionsEditor field={field} />
-                    )}
-
-                    {/* Rating */}
-                    {field.type === "rating" && (
-                      <RatingSettings field={field} />
-                    )}
-
-                    {/* Linear scale */}
-                    {field.type === "linear_scale" && (
-                      <LinearScaleSettings field={field} />
-                    )}
-
-                    {/* Text validation */}
-                    {(field.type === "short_text" ||
-                      field.type === "long_text") && (
-                      <TextValidation field={field} />
-                    )}
-
-                    {/* Number validation */}
-                    {field.type === "number" && (
-                      <NumberValidation field={field} />
-                    )}
-
+                    <DescriptionSettings field={field} />
                     <Button
                       variant="destructive"
                       className="w-full"
                       onClick={handleDelete}
                     >
                       <Trash2 data-icon="inline-start" />
-                      Delete field
+                      Delete description
                     </Button>
                   </>
                 )}
+
+                {/* ── All input field types ── */}
+                {field.type !== "divider" &&
+                  field.type !== "heading" &&
+                  field.type !== "description" && (
+                    <>
+                      <CommonFields
+                        field={field}
+                        showPlaceholder={
+                          field.type !== "rating" &&
+                          field.type !== "yes_no" &&
+                          field.type !== "code"
+                        }
+                        showDefaultText={
+                          field.type === "short_text" ||
+                          field.type === "long_text" ||
+                          field.type === "email" ||
+                          field.type === "url" ||
+                          field.type === "number"
+                        }
+                        placeholderHint={
+                          field.type === "email"
+                            ? "e.g. your@email.com"
+                            : field.type === "url"
+                              ? "e.g. https://example.com"
+                              : field.type === "phone"
+                                ? "e.g. +1 (555) 000-0000"
+                                : field.type === "time"
+                                  ? "e.g. 09:00"
+                                  : undefined
+                        }
+                      />
+
+                      {/* Time default */}
+                      {field.type === "time" && (
+                        <Field>
+                          <FieldLabel htmlFor="field-default-time">
+                            Default time
+                          </FieldLabel>
+                          <Input
+                            id="field-default-time"
+                            type="time"
+                            value={field.defaultValue ?? ""}
+                            onChange={(e) =>
+                              updateField(field.id, {
+                                defaultValue: e.target.value || undefined,
+                              })
+                            }
+                          />
+                        </Field>
+                      )}
+
+                      {/* Date */}
+                      {field.type === "date" && <DateSettings field={field} />}
+
+                      {/* Phone */}
+                      {field.type === "phone" && (
+                        <PhoneSettings field={field} />
+                      )}
+
+                      {/* URL */}
+                      {field.type === "url" && <UrlSettings field={field} />}
+
+                      {/* Single choice variant */}
+                      {field.type === "single_choice" && (
+                        <Field>
+                          <FieldLabel>Display as</FieldLabel>
+                          <Select
+                            value={field.variant ?? "radio"}
+                            onValueChange={(v) =>
+                              updateField(field.id, {
+                                variant: v as "radio" | "select",
+                              })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="radio">
+                                Radio buttons
+                              </SelectItem>
+                              <SelectItem value="select">Dropdown</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </Field>
+                      )}
+
+                      {/* Options */}
+                      {(field.type === "single_choice" ||
+                        field.type === "multiple_choice" ||
+                        field.type === "select") && (
+                        <OptionsEditor field={field} />
+                      )}
+
+                      {/* Rating */}
+                      {field.type === "rating" && (
+                        <RatingSettings field={field} />
+                      )}
+
+                      {/* Linear scale */}
+                      {field.type === "linear_scale" && (
+                        <LinearScaleSettings field={field} />
+                      )}
+
+                      {/* Text validation */}
+                      {(field.type === "short_text" ||
+                        field.type === "long_text") && (
+                        <TextValidation field={field} />
+                      )}
+
+                      {/* Number validation */}
+                      {field.type === "number" && (
+                        <NumberValidation field={field} />
+                      )}
+
+                      {/* Code */}
+                      {field.type === "code" && <CodeSettings field={field} />}
+
+                      <Button
+                        variant="destructive"
+                        className="w-full"
+                        onClick={handleDelete}
+                      >
+                        <Trash2 data-icon="inline-start" />
+                        Delete field
+                      </Button>
+                    </>
+                  )}
               </FieldGroup>
             </div>
           </>

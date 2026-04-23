@@ -3,15 +3,9 @@
 import { cn } from "@/lib/utils";
 import type { FormField } from "@/types";
 
-interface HeadingFieldProps {
+interface DescriptionFieldProps {
   field: FormField;
 }
-
-const HEADING_CLASSES = {
-  h1: "text-3xl font-bold",
-  h2: "text-xl font-semibold",
-  h3: "text-lg font-medium",
-} as const;
 
 const TEXT_ALIGN_CLASSES = {
   left: "text-left",
@@ -19,22 +13,21 @@ const TEXT_ALIGN_CLASSES = {
   right: "text-right",
 } as const;
 
-export function HeadingField({ field }: HeadingFieldProps) {
-  const level = field.headingLevel ?? "h2";
+export function DescriptionField({ field }: DescriptionFieldProps) {
   const align = field.textAlign ?? "left";
-  const Tag = level;
+
+  if (!field.label) return null;
 
   return (
     <div className="px-3 py-2">
-      <Tag
+      <p
         className={cn(
-          "leading-tight",
-          HEADING_CLASSES[level],
+          "text-muted-foreground text-sm leading-relaxed",
           TEXT_ALIGN_CLASSES[align],
         )}
       >
-        {field.label || "Heading"}
-      </Tag>
+        {field.label}
+      </p>
     </div>
   );
 }

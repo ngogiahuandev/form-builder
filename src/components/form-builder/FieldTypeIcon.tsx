@@ -2,6 +2,7 @@
 
 import {
   AlignLeft,
+  Braces,
   Calendar,
   CheckSquare,
   ChevronsUpDown,
@@ -13,6 +14,7 @@ import {
   Mail,
   Minus,
   Phone,
+  Pilcrow,
   SlidersHorizontal,
   Star,
   ThumbsUp,
@@ -39,6 +41,8 @@ const ICON_MAP = {
   time: Clock,
   yes_no: ThumbsUp,
   heading: Heading,
+  description: Pilcrow,
+  code: Braces,
 } as const satisfies Record<FieldType, ComponentType<{ className?: string }>>;
 
 interface FieldTypeIconProps {

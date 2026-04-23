@@ -15,10 +15,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { FIELD_TYPES } from "@/lib/field-types";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
 import type { FieldType, FormField } from "@/types";
 import { FieldEditPreview } from "@/components/form-builder/FieldEditPreview";
+import { FieldPaletteContent } from "@/components/form-builder/FieldPaletteContent";
 import { FieldTypeIcon } from "@/components/form-builder/FieldTypeIcon";
 
 const SingleLine = Extension.create({
@@ -40,11 +40,6 @@ function InsertPalette({ index }: { index: number }) {
   const addFieldAt = useFormBuilderStore((s) => s.addFieldAt);
   const [open, setOpen] = useState(false);
 
-  const handleSelect = (type: FieldType) => {
-    addFieldAt(type, index + 1);
-    setOpen(false);
-  };
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -58,27 +53,15 @@ function InsertPalette({ index }: { index: number }) {
           <span className="sr-only">Add field below</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent side="bottom" align="start" className="w-64 p-2">
-        <div className="flex flex-col gap-0.5">
-          {FIELD_TYPES.map(({ type, label, description }) => (
-            <button
-              key={type}
-              onClick={() => handleSelect(type)}
-              className="hover:bg-accent flex items-start gap-3 rounded-md px-3 py-2 text-left transition-colors"
-            >
-              <FieldTypeIcon
-                type={type}
-                className="text-muted-foreground mt-0.5 shrink-0"
-              />
-              <div>
-                <p className="text-sm leading-none font-medium">{label}</p>
-                <p className="text-muted-foreground mt-0.5 text-xs">
-                  {description}
-                </p>
-              </div>
-            </button>
-          ))}
-        </div>
+      {/* Same content + sizing as the bottom `Add field` palette so both
+          popovers look identical. */}
+      <PopoverContent side="bottom" align="start" className="w-64 p-0">
+        <FieldPaletteContent
+          onSelect={(type) => {
+            addFieldAt(type, index + 1);
+            setOpen(false);
+          }}
+        />
       </PopoverContent>
     </Popover>
   );
@@ -94,30 +77,151 @@ function SlashCommandMenu({
   return (
     <>
       <div className="fixed inset-0 z-10" onClick={onClose} />
-      <div className="bg-popover absolute top-full left-0 z-20 mt-1 w-64 rounded-lg border p-2 shadow-md">
-        <p className="text-muted-foreground mb-1 px-2 text-xs font-medium">
-          Insert field
-        </p>
-        {FIELD_TYPES.map(({ type, label, description }) => (
-          <button
-            key={type}
-            onClick={() => onSelect(type)}
-            className="hover:bg-accent flex w-full items-start gap-3 rounded-md px-3 py-2 text-left transition-colors"
-          >
-            <FieldTypeIcon
-              type={type}
-              className="text-muted-foreground mt-0.5 shrink-0"
-            />
-            <div>
-              <p className="text-sm leading-none font-medium">{label}</p>
-              <p className="text-muted-foreground mt-0.5 text-xs">
-                {description}
-              </p>
-            </div>
-          </button>
-        ))}
+      {/* Mirrors the popover shell used by `InsertPalette` / `BlockPalette`. */}
+      <div className="bg-popover absolute top-full left-0 z-20 mt-1 w-64 overflow-hidden rounded-md border p-0 shadow-md">
+        <FieldPaletteContent onSelect={onSelect} />
       </div>
     </>
+  );
+}
+
+const HEADING_CLASSES = {
+  h1: "text-3xl font-bold",
+  h2: "text-2xl font-semibold",
+  h3: "text-xl font-medium",
+} as const;
+
+const TEXT_ALIGN_CLASSES = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+} as const;
+
+interface InlineTextBlockProps {
+  field: FormField;
+  index: number;
+  isSelected: boolean;
+  setNodeRef: (node: HTMLElement | null) => void;
+  setActivatorNodeRef: (node: HTMLElement | null) => void;
+  attributes: ReturnType<typeof useSortable>["attributes"];
+  listeners: ReturnType<typeof useSortable>["listeners"];
+  style: React.CSSProperties;
+}
+
+/**
+ * Shared block used by both "heading" and "description" — a bare, inline,
+ * self-sized TipTap editor with no type icon or label row. Clicking the text
+ * just edits; clicking the surrounding block opens the settings sheet (where
+ * heading level / text align live).
+ */
+function InlineTextBlock({
+  field,
+  index,
+  isSelected,
+  setNodeRef,
+  setActivatorNodeRef,
+  attributes,
+  listeners,
+  style,
+}: InlineTextBlockProps) {
+  const { setSelectedFieldId, updateFieldLabel, removeField, duplicateField } =
+    useFormBuilderStore();
+
+  const isHeading = field.type === "heading";
+  const level = field.headingLevel ?? "h2";
+  const align = field.textAlign ?? "left";
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      SingleLine,
+      Placeholder.configure({
+        placeholder: isHeading ? "Heading" : "Add a description…",
+      }),
+    ],
+    content: field.label,
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => updateFieldLabel(field.id, editor.getText()),
+  });
+
+  const label = isHeading ? "heading" : "description";
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      onClick={() => setSelectedFieldId(field.id)}
+      className={cn(
+        "group/block hover:bg-accent/40 relative cursor-pointer rounded-md px-3 py-2 transition-colors",
+        isSelected && "bg-accent/40 ring-primary/20 ring-1",
+      )}
+    >
+      {/* Left gutter — visible on hover */}
+      <div className="absolute top-0 right-full flex items-center gap-0.5 pr-1">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            removeField(field.id);
+          }}
+          className="hover:bg-destructive/10 hover:text-destructive opacity-0 transition-opacity group-hover/block:opacity-100"
+        >
+          <Trash2 />
+          <span className="sr-only">Delete {label}</span>
+        </Button>
+        <InsertPalette index={index} />
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            duplicateField(field.id);
+          }}
+          className="opacity-0 transition-opacity group-hover/block:opacity-100"
+        >
+          <Copy />
+          <span className="sr-only">Duplicate {label}</span>
+        </Button>
+        <Button
+          ref={setActivatorNodeRef}
+          variant="ghost"
+          size="icon-sm"
+          {...attributes}
+          {...listeners}
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedFieldId(field.id);
+          }}
+          className="cursor-grab opacity-0 transition-opacity group-hover/block:opacity-100 active:cursor-grabbing"
+        >
+          <GripVertical />
+          <span className="sr-only">Drag to reorder</span>
+        </Button>
+      </div>
+
+      {/* Inline-editable text. Clicking the text just edits; clicking outside
+          the text (on the surrounding block) opens the settings sheet. The
+          wrapper div carries the alignment so it works even while editing. */}
+      <div className={cn("leading-tight", TEXT_ALIGN_CLASSES[align])}>
+        <EditorContent
+          editor={editor}
+          onClick={(e) => e.stopPropagation()}
+          className={cn(
+            "inline-block w-fit min-w-4",
+            "[&_.tiptap]:inline-block [&_.tiptap]:w-fit [&_.tiptap]:min-w-4 [&_.tiptap]:outline-none",
+            "[&_.tiptap_p.is-editor-empty:first-child::before]:text-muted-foreground/60",
+            "[&_.tiptap_p.is-editor-empty:first-child::before]:pointer-events-none",
+            "[&_.tiptap_p.is-editor-empty:first-child::before]:float-left",
+            "[&_.tiptap_p.is-editor-empty:first-child::before]:h-0",
+            "[&_.tiptap_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]",
+            isHeading
+              ? HEADING_CLASSES[level]
+              : "text-muted-foreground text-sm leading-relaxed",
+          )}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -191,6 +295,25 @@ export function FieldBlock({ field, index }: FieldBlockProps) {
           <FieldEditPreview field={field} />
         </div>
       </div>
+    );
+  }
+
+  // Heading & Description — rendered like the form title: a bare, inline,
+  // self-sized editor with no type icon or label row. Clicking the text
+  // itself just edits; clicking the surrounding block opens the settings
+  // sheet (where heading level / text align live).
+  if (field.type === "heading" || field.type === "description") {
+    return (
+      <InlineTextBlock
+        field={field}
+        index={index}
+        isSelected={isSelected}
+        setNodeRef={setNodeRef}
+        setActivatorNodeRef={setActivatorNodeRef}
+        attributes={attributes}
+        listeners={listeners}
+        style={style}
+      />
     );
   }
 

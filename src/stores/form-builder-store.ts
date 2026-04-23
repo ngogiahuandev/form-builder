@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { DEFAULT_CODE_LANGUAGE } from "@/lib/code-languages";
+import { DEFAULT_FORM_FONT_KEY } from "@/lib/form-fonts";
 import type {
   FieldType,
   FormField,
@@ -17,6 +19,7 @@ const INITIAL_SCHEMA: FormSchema = {
     submitLabel: "Submit",
     successMessage: "Thank you for your response!",
     submitAlignment: "center",
+    fontFamily: DEFAULT_FORM_FONT_KEY,
   },
 };
 
@@ -37,6 +40,8 @@ const DEFAULT_LABELS = {
   time: "Time",
   yes_no: "Yes / No",
   heading: "Section Heading",
+  description: "Add a description…",
+  code: "Code",
 } as const satisfies Record<FieldType, string>;
 
 function buildDefaultField(type: FieldType): FormField {
@@ -51,7 +56,22 @@ function buildDefaultField(type: FieldType): FormField {
     type === "multiple_choice" ||
     type === "select"
   ) {
-    return { ...base, options: [] };
+    // Start with two starter options so the field is usable immediately.
+    return {
+      ...base,
+      options: [
+        {
+          id: crypto.randomUUID(),
+          label: "Option 1",
+          value: "Option 1",
+        },
+        {
+          id: crypto.randomUUID(),
+          label: "Option 2",
+          value: "Option 2",
+        },
+      ],
+    };
   }
   if (type === "linear_scale") {
     return {
@@ -60,7 +80,13 @@ function buildDefaultField(type: FieldType): FormField {
     };
   }
   if (type === "heading") {
-    return { ...base, headingLevel: "h2" as const };
+    return { ...base, headingLevel: "h2" as const, textAlign: "left" as const };
+  }
+  if (type === "description") {
+    return { ...base, textAlign: "left" as const };
+  }
+  if (type === "code") {
+    return { ...base, codeLanguage: DEFAULT_CODE_LANGUAGE };
   }
   return base;
 }
@@ -133,6 +159,9 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
 
       addField: (type) => {
         const newField = buildDefaultField(type);
+        // Intentionally do NOT auto-select the new field — adding a field
+        // should not pop the settings sheet. Users open settings explicitly
+        // by clicking the block.
         set((state) => ({
           schema: {
             ...state.schema,
@@ -141,7 +170,6 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
           past: pushHistory(state.past, state.schema, state.currentLabel),
           future: [],
           currentLabel: `Added ${DEFAULT_LABELS[type]}`,
-          selectedFieldId: newField.id,
         }));
       },
 
@@ -155,7 +183,6 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
             past: pushHistory(state.past, state.schema, state.currentLabel),
             future: [],
             currentLabel: `Added ${DEFAULT_LABELS[type]}`,
-            selectedFieldId: newField.id,
           };
         });
       },
@@ -377,12 +404,35 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
     }),
     {
       name: "form-builder-state",
+      version: 2,
       partialize: (state) => ({
         schema: state.schema,
         past: state.past,
         future: state.future,
         currentLabel: state.currentLabel,
       }),
+      // Back-fill newly added settings keys on existing persisted state so
+      // returning users don't crash on missing fields like `fontFamily`.
+      migrate: (persistedState, version) => {
+        const state = persistedState as Partial<FormBuilderState> | undefined;
+        if (!state?.schema) return state as FormBuilderState;
+        if (version < 2) {
+          const existing = state.schema.settings as
+            | Partial<FormSettings>
+            | undefined;
+          state.schema = {
+            ...state.schema,
+            settings: {
+              submitLabel: existing?.submitLabel ?? "Submit",
+              successMessage:
+                existing?.successMessage ?? "Thank you for your response!",
+              submitAlignment: existing?.submitAlignment ?? "center",
+              fontFamily: existing?.fontFamily ?? DEFAULT_FORM_FONT_KEY,
+            },
+          };
+        }
+        return state as FormBuilderState;
+      },
     },
   ),
 );

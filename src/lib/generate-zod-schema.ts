@@ -87,6 +87,25 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
         ? base.min(1, "This field is required")
         : base.optional();
     }
+    case "code": {
+      let str = z.string();
+      const { maxLength, maxLines } = field.validation ?? {};
+      if (field.required) str = str.min(1, "This field is required");
+      if (maxLength)
+        str = str.max(
+          maxLength,
+          `At most ${maxLength} character${maxLength === 1 ? "" : "s"}`,
+        );
+      if (maxLines) {
+        const limit = maxLines;
+        const refined = str.refine(
+          (val) => val.split(/\r\n|\r|\n/).length <= limit,
+          { message: `At most ${limit} line${limit === 1 ? "" : "s"}` },
+        );
+        return field.required ? refined : refined.optional();
+      }
+      return field.required ? str : str.optional();
+    }
     case "single_choice": {
       const values = (field.options ?? []).map((o) => o.value);
       if (values.length < 1) {
@@ -141,6 +160,7 @@ function buildFieldSchema(field: FormField): z.ZodTypeAny {
     }
     case "divider":
     case "heading":
+    case "description":
       return z.never();
   }
 }
@@ -150,7 +170,12 @@ export function generateZodSchema(
 ): z.ZodObject<Record<string, z.ZodTypeAny>> {
   const shape: Record<string, z.ZodTypeAny> = {};
   for (const field of fields) {
-    if (field.type === "divider" || field.type === "heading") continue;
+    if (
+      field.type === "divider" ||
+      field.type === "heading" ||
+      field.type === "description"
+    )
+      continue;
     shape[field.id] = buildFieldSchema(field);
   }
 
@@ -162,7 +187,12 @@ export function generateDefaultValues(
 ): Record<string, unknown> {
   const defaults: Record<string, unknown> = {};
   for (const field of fields) {
-    if (field.type === "divider" || field.type === "heading") continue;
+    if (
+      field.type === "divider" ||
+      field.type === "heading" ||
+      field.type === "description"
+    )
+      continue;
     switch (field.type) {
       case "short_text":
       case "long_text":
@@ -170,6 +200,7 @@ export function generateDefaultValues(
       case "phone":
       case "url":
       case "time":
+      case "code":
         defaults[field.id] = field.defaultValue ?? "";
         break;
       case "number":

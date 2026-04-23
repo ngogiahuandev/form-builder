@@ -5,19 +5,34 @@ import { useEffect, useState } from "react";
 import { Eye, History, Redo2, RotateCcw, SquarePen, Undo2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { getFormFont } from "@/lib/form-fonts";
 import { useFormBuilderStore } from "@/stores/form-builder-store";
 import { Canvas } from "@/components/form-builder/Canvas";
 import { ExportButton } from "@/components/form-builder/ExportButton";
 import { FieldSettings } from "@/components/form-builder/FieldSettings";
 import { FormHeader } from "@/components/form-builder/FormHeader";
+import { FormSettingsPanel } from "@/components/form-builder/FormSettingsPanel";
 import { HistoryPanel } from "@/components/form-builder/HistoryPanel";
 import { ThemeToggle } from "@/components/form-builder/ThemeToggle";
 import { FormPreview } from "@/components/form-builder/preview/FormPreview";
 
 export function FormBuilder() {
-  const { activeMode, setActiveMode, past, future, undo, redo, resetForm } =
-    useFormBuilderStore();
+  const {
+    schema,
+    activeMode,
+    setActiveMode,
+    past,
+    future,
+    undo,
+    redo,
+    resetForm,
+  } = useFormBuilderStore();
   const [mounted, setMounted] = useState(false);
+
+  // The form font is applied to edit and preview surfaces only — the app
+  // chrome (header, tabs, dialogs) keeps the default UI font.
+  const formFont = getFormFont(schema.settings.fontFamily);
+  const formFontStyle = { fontFamily: formFont.fontFamily };
 
   useEffect(() => {
     setMounted(true);
@@ -98,6 +113,7 @@ export function FormBuilder() {
                 <Redo2 />
                 <span className="sr-only">Redo</span>
               </Button>
+              <FormSettingsPanel />
               <ThemeToggle />
               <ExportButton />
             </div>
@@ -105,7 +121,7 @@ export function FormBuilder() {
         </header>
 
         <TabsContent value="edit" className="mt-0 flex-1">
-          <main className="mx-auto max-w-3xl py-12">
+          <main className="mx-auto max-w-3xl py-12" style={formFontStyle}>
             <FormHeader />
             <Canvas />
           </main>
@@ -113,7 +129,7 @@ export function FormBuilder() {
         </TabsContent>
 
         <TabsContent value="preview" className="mt-0 flex-1">
-          <main className="mx-auto max-w-3xl py-12">
+          <main className="mx-auto max-w-3xl py-12" style={formFontStyle}>
             <FormPreview />
           </main>
         </TabsContent>
